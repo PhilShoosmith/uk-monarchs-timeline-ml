@@ -9,6 +9,7 @@ interface ReviewScreenProps {
   monarchs: Monarch[];
   onExit: () => void;
   onLearnMore: (monarch: Monarch) => void;
+  onShowFamilyTree: (monarch: Monarch) => void;
 }
 
 // Helper to find a monarch's period. Iterates backwards to handle overlapping start/end dates in constants correctly.
@@ -18,7 +19,7 @@ const getPeriodForMonarch = (monarch: Monarch): string | null => {
     return period ? period.name : null;
 };
 
-const ReviewScreen: React.FC<ReviewScreenProps> = ({ monarchs, onExit, onLearnMore }) => {
+const ReviewScreen: React.FC<ReviewScreenProps> = ({ monarchs, onExit, onLearnMore, onShowFamilyTree }) => {
   const { t } = useTranslation();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -155,6 +156,28 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({ monarchs, onExit, onLearnMo
                         <p className="text-sm text-slate-300 mt-2 flex-grow overflow-hidden line-clamp-4">
                           {t(monarch.context)}
                         </p>
+                        <div className="mt-4 pt-3 border-t border-slate-700/60 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onShowFamilyTree(monarch);
+                            }}
+                            className="flex-1 py-1.5 px-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-lg shadow transition-all duration-200 flex items-center justify-center gap-1.5"
+                          >
+                            <span>👑 {t("Family Tree")}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onLearnMore(monarch);
+                            }}
+                            className="py-1.5 px-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs rounded-lg transition-colors border border-slate-600"
+                          >
+                            {t("Learn More")}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>

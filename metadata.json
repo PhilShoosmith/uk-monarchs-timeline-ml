@@ -1,6 +1,6 @@
 {
-  "name": "Remix Languages UK Monarchs Timeline: A Royal Guessing Game 1.5.0",
+  "name": "Remix: 26: Languages UK Monarchs Timeline: A Royal Guessing Game 1.5.0",
   "description": "Test your knowledge of British monarchs by placing them on the correct spot on the timeline based on when their reign began. Score points for accuracy and see how well you know your royal history!",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

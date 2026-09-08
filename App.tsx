@@ -236,7 +236,12 @@ const App: React.FC = () => {
     setGameState('hall-of-fame');
   }, []);
 
-  const handleFamilyTree = useCallback(() => {
+  const [familyTreeMonarchId, setFamilyTreeMonarchId] = useState<number>(1);
+
+  const handleFamilyTree = useCallback((monarchId?: number) => {
+    if (typeof monarchId === 'number') {
+      setFamilyTreeMonarchId(monarchId);
+    }
     setGameState('family-tree');
   }, []);
 
@@ -603,9 +608,9 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
       case 'start':
         return <StartScreen onStart={startGame} monarchs={allMonarchsData} onShowInstructions={openInstructions} onReview={handleReview} onPrivacy={handlePrivacy} onTerms={handleTerms} onShowHallOfFame={handleHallOfFame} onShowFamilyTree={handleFamilyTree} />;
       case 'review':
-        return <ReviewScreen monarchs={allMonarchsData} onExit={handleExitReview} onLearnMore={handleLearnMore} />;
+        return <ReviewScreen monarchs={allMonarchsData} onExit={handleExitReview} onLearnMore={handleLearnMore} onShowFamilyTree={(m) => handleFamilyTree(m.id)} />;
       case 'family-tree':
-        return <FamilyTree monarchs={allMonarchsData} onBack={handleExitReview} />;
+        return <FamilyTree monarchs={allMonarchsData} onBack={handleExitReview} initialMonarchId={familyTreeMonarchId} />;
       case 'privacy':
         return <PrivacyPolicy onBack={handleExitReview} />;
       case 'terms':

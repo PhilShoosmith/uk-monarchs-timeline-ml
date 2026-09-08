@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import { Monarch } from "../types";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import { MonarchFamilyTree } from "./MonarchFamilyTree";
+import { Crown, GitFork, ArrowLeft } from "lucide-react";
 
 interface FamilyTreeProps {
   monarchs: Monarch[];
   onBack: () => void;
+  initialMonarchId?: number;
 }
 
 interface TreeNode {
@@ -66,8 +69,16 @@ const buildTreeData = (monarchs: Monarch[]): TreeNode[] => {
   }));
 };
 
-const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
+const FamilyTree: React.FC<FamilyTreeProps> = ({
+  monarchs,
+  onBack,
+  initialMonarchId = 1,
+}) => {
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<"individual" | "dynasty">("individual");
+  const [selectedMonarchId, setSelectedMonarchId] = useState<number>(initialMonarchId);
+
+  // SVG Lineage refs & states
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredMonarch, setHoveredMonarch] = useState<Monarch | null>(null);
@@ -76,8 +87,8 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
   const treeData = useMemo(() => buildTreeData(monarchs), [monarchs]);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || treeData.length === 0)
-      return;
+    if (activeTab !== "dynasty") return;
+    if (!svgRef.current || !containerRef.current || treeData.length === 0) return;
 
     const margin = { top: 40, right: 40, bottom: 40, left: 40 };
 
@@ -88,113 +99,37 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
     const stratify = d3
       .stratify<TreeNode>()
       .id((d) => d.id.toString())
-      .parentId((d) => (d.parentId ? d.parentId.toString() : null));
+      .parentId((d) => (d.parentId !== null ? d.parentId.toString() : null));
 
     const root = stratify(treeData);
 
-    // Tree layout
+    const containerWidth = containerRef.current.clientWidth || 1000;
+    const containerHeight = containerRef.current.clientHeight || 700;
+
     const treeLayout = d3
       .tree<TreeNode>()
-      .nodeSize([120, 160])
+      .nodeSize([80, 140])
       .separation((a, b) => (a.parent === b.parent ? 1.2 : 1.5));
 
     treeLayout(root);
 
-    // Calculate bounds to center the tree
-    let x0 = Infinity;
-    let x1 = -x0;
-    let y0 = Infinity;
-    let y1 = -y0;
-    root.each((d) => {
-      if (d.x > x1) x1 = d.x;
-      if (d.x < x0) x0 = d.x;
-      if (d.y > y1) y1 = d.y;
-      if (d.y < y0) y0 = d.y;
-    });
-
-    const g = svg.append("g");
-
-    // Add zoom capabilities
+    // Zoom behavior
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.1, 3])
+      .scaleExtent([0.2, 2.5])
       .on("zoom", (event) => {
         g.attr("transform", event.transform);
       });
 
     svg.call(zoom);
 
-    // Initial zoom to fit and center
-    const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
-    const treeWidth = x1 - x0 + 120;
-    const treeHeight = y1 - y0 + 160;
+    const g = svg.append("g");
 
-    const scale =
-      Math.min(
-        containerWidth / treeWidth,
-        containerHeight / treeHeight,
-        1, // don't scale up more than 1x
-      ) * 0.9; // 90% of container
-
+    // Center root initially
     const initialTransform = d3.zoomIdentity
-      .translate(
-        containerWidth / 2 - ((x0 + x1) / 2) * scale,
-        containerHeight / 2 - ((y0 + y1) / 2) * scale,
-      )
-      .scale(scale);
-
+      .translate(containerWidth / 2, margin.top + 30)
+      .scale(0.85);
     svg.call(zoom.transform, initialTransform);
-
-    // House backgrounds
-    const houseGroups = d3.group(root.descendants(), (d) => d.data.monarch.house);
-    const colors = [
-      "#ef4444", "#f97316", "#f59e0b", "#84cc16", "#10b981", 
-      "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#f43f5e"
-    ];
-    const colorScale = d3.scaleOrdinal(colors);
-    const houseBackgrounds = g.append("g").attr("class", "house-backgrounds");
-
-    houseGroups.forEach((nodes, house) => {
-      if (!house) return;
-
-      const paddingX = 80;
-      const paddingTop = 60;
-      const paddingBottom = 80;
-
-      const minX = d3.min(nodes, (d) => d.x) ?? 0;
-      const maxX = d3.max(nodes, (d) => d.x) ?? 0;
-      const minY = d3.min(nodes, (d) => d.y) ?? 0;
-      const maxY = d3.max(nodes, (d) => d.y) ?? 0;
-
-      const width = maxX - minX + paddingX * 2;
-      const height = maxY - minY + paddingTop + paddingBottom;
-
-      const houseGroup = houseBackgrounds.append("g");
-
-      houseGroup
-        .append("rect")
-        .attr("x", minX - paddingX)
-        .attr("y", minY - paddingTop)
-        .attr("width", width)
-        .attr("height", height)
-        .attr("rx", 24)
-        .attr("fill", colorScale(house))
-        .attr("opacity", 0.15)
-        .attr("stroke", colorScale(house))
-        .attr("stroke-width", 2)
-        .attr("stroke-opacity", 0.4);
-
-      houseGroup
-        .append("text")
-        .attr("x", minX - paddingX + 20)
-        .attr("y", minY - paddingTop + 28)
-        .attr("fill", colorScale(house))
-        .attr("opacity", 0.9)
-        .attr("font-size", "16px")
-        .attr("font-weight", "bold")
-        .text(t(`House of {{house}}`, { house: t(house) }));
-    });
 
     // Links
     g.selectAll(".link")
@@ -202,7 +137,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
       .join("path")
       .attr("class", "link")
       .attr("fill", "none")
-      .attr("stroke", "#ffff00") // bright yellow
+      .attr("stroke", "#f59e0b")
       .attr("stroke-width", 2)
       .attr(
         "d",
@@ -212,7 +147,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
             d3.HierarchyPointNode<TreeNode>
           >()
           .x((d) => d.x)
-          .y((d) => d.y),
+          .y((d) => d.y)
       );
 
     // Nodes
@@ -220,7 +155,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
       .selectAll(".node")
       .data(root.descendants())
       .join("g")
-      .attr("class", "node")
+      .attr("class", "node cursor-pointer")
       .attr("transform", (d) => `translate(${d.x},${d.y})`)
       .on("mouseenter", (event, d) => {
         setHoveredMonarch(d.data.monarch);
@@ -239,14 +174,18 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
           .select("circle")
           .attr("stroke", "#94a3b8")
           .attr("stroke-width", 2);
+      })
+      .on("click", (_event, d) => {
+        setSelectedMonarchId(d.data.monarch.id);
+        setActiveTab("individual");
       });
 
     // Node circles (background for images)
     node
       .append("circle")
       .attr("r", 24)
-      .attr("fill", "#1e293b") // slate-800
-      .attr("stroke", "#94a3b8") // slate-400
+      .attr("fill", "#1e293b")
+      .attr("stroke", "#94a3b8")
       .attr("stroke-width", 2);
 
     // Clip path for images
@@ -272,71 +211,132 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({ monarchs, onBack }) => {
       .append("text")
       .attr("dy", 36)
       .attr("text-anchor", "middle")
-      .attr("fill", "#e2e8f0") // slate-200
+      .attr("fill", "#e2e8f0")
       .attr("font-size", "12px")
-      .attr("font-weight", "500")
+      .attr("font-weight", "600")
       .text((d) => t(d.data.monarch.name));
 
     node
       .append("text")
       .attr("dy", 50)
       .attr("text-anchor", "middle")
-      .attr("fill", "#94a3b8") // slate-400
+      .attr("fill", "#94a3b8")
       .attr("font-size", "10px")
       .text(
         (d) =>
-          `${d.data.monarch.reignStart} - ${d.data.monarch.reignEnd || t("Present")}`,
+          `${d.data.monarch.reignStart} - ${
+            d.data.monarch.reignEnd || t("Present")
+          }`
       );
-  }, [treeData, t]);
+  }, [treeData, t, activeTab]);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-slate-900 relative">
-      <div className="absolute top-4 left-4 z-10">
-        <button
-          onClick={onBack}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors border border-slate-700 shadow-lg"
-        >
-          &larr; {t("Back to Menu")}
-        </button>
-      </div>
+    <div className="w-full min-h-screen flex flex-col bg-slate-900 text-white relative">
+      {/* Top Header & Tab Controls */}
+      <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-md">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button
+            onClick={onBack}
+            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors border border-slate-700 shadow flex items-center justify-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{t("Back to Menu")}</span>
+          </button>
 
-      <div className="absolute top-4 right-4 z-10 text-right pointer-events-none">
-        <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-500">
-          {t("Royal Lineage")}
-        </h2>
-        <p className="text-slate-400 text-sm">{t("Scroll to zoom, drag to pan")}</p>
-      </div>
+          {/* View Mode Toggle Buttons */}
+          <div className="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 shadow-inner w-full sm:w-auto justify-center">
+            <button
+              onClick={() => setActiveTab("individual")}
+              className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === "individual"
+                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <Crown className="w-4 h-4" />
+              <span>{t("Monarch Family Tree")}</span>
+            </button>
 
-      <div
-        ref={containerRef}
-        className="flex-1 w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
-      >
-        <svg ref={svgRef} className="w-full h-full" />
-      </div>
-
-      {hoveredMonarch && (
-        <div
-          className="fixed z-50 bg-slate-800 border border-slate-600 p-4 rounded-xl shadow-2xl max-w-xs pointer-events-none transform -translate-x-1/2 -translate-y-full mt-[-20px]"
-          style={{ left: tooltipPos.x, top: tooltipPos.y }}
-        >
-          <div className="flex items-center gap-3 mb-2">
-            {hoveredMonarch.imageUrl && (
-              <img
-                src={hoveredMonarch.imageUrl}
-                alt={hoveredMonarch.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-amber-500"
-              />
-            )}
-            <div>
-              <h3 className="font-bold text-white">{t(hoveredMonarch.name)}</h3>
-              <p className="text-xs text-amber-400">{t(`House of {{house}}`, { house: t(hoveredMonarch.house) })}</p>
-            </div>
+            <button
+              onClick={() => setActiveTab("dynasty")}
+              className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                activeTab === "dynasty"
+                  ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <GitFork className="w-4 h-4" />
+              <span>{t("Dynasty Lineage Overview")}</span>
+            </button>
           </div>
-          <p className="text-sm text-slate-300 leading-relaxed">
-            {t(hoveredMonarch.context)}
-          </p>
+
+          <div className="hidden lg:block text-xs text-slate-400 font-medium">
+            {activeTab === "individual"
+              ? t("Showing all spouses & known children")
+              : t("Click any monarch node to view family")}
+          </div>
         </div>
-      )}
+      </header>
+
+      {/* Main Content Area */}
+      <main className="flex-1 w-full overflow-y-auto">
+        {activeTab === "individual" ? (
+          <div className="py-4 pb-12">
+            <MonarchFamilyTree
+              monarchs={monarchs}
+              selectedMonarchId={selectedMonarchId}
+              onSelectMonarch={setSelectedMonarchId}
+            />
+          </div>
+        ) : (
+          <div className="w-full h-[calc(100vh-65px)] relative flex flex-col bg-slate-950">
+            <div className="absolute top-3 right-4 z-10 text-right bg-slate-900/80 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-800 pointer-events-none">
+              <h2 className="text-sm font-bold text-amber-400">
+                {t("Royal Lineage Tree")}
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                {t("Drag to pan, scroll to zoom • Click a monarch for family details")}
+              </p>
+            </div>
+
+            <div
+              ref={containerRef}
+              className="flex-1 w-full h-full overflow-hidden cursor-grab active:cursor-grabbing"
+            >
+              <svg ref={svgRef} className="w-full h-full" />
+            </div>
+
+            {hoveredMonarch && (
+              <div
+                className="fixed z-50 bg-slate-800 border border-slate-600 p-3 rounded-xl shadow-2xl max-w-xs pointer-events-none transform -translate-x-1/2 -translate-y-full mt-[-15px]"
+                style={{ left: tooltipPos.x, top: tooltipPos.y }}
+              >
+                <div className="flex items-center gap-2.5 mb-1.5">
+                  {hoveredMonarch.imageUrl && (
+                    <img
+                      src={hoveredMonarch.imageUrl}
+                      alt={hoveredMonarch.name}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-amber-500"
+                    />
+                  )}
+                  <div>
+                    <h3 className="font-bold text-sm text-white">{t(hoveredMonarch.name)}</h3>
+                    <p className="text-[11px] text-amber-400">
+                      {t("House of {{house}}", { house: t(hoveredMonarch.house) })}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-300 line-clamp-3">
+                  {t(hoveredMonarch.context)}
+                </p>
+                <p className="text-[10px] text-amber-300 mt-1 font-semibold">
+                  {t("Click to view spouses & children")} &rarr;
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 };
