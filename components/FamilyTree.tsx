@@ -131,6 +131,110 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
       .scale(0.85);
     svg.call(zoom.transform, initialTransform);
 
+    // --- Draw House Overlays ---
+    const housesMap = new Map<
+      string,
+      { minX: number; maxX: number; minY: number; maxY: number }
+    >();
+
+    root.descendants().forEach((d) => {
+      const house = d.data.monarch.house;
+      if (!housesMap.has(house)) {
+        housesMap.set(house, { minX: d.x, maxX: d.x, minY: d.y, maxY: d.y });
+      } else {
+        const bounds = housesMap.get(house)!;
+        bounds.minX = Math.min(bounds.minX, d.x);
+        bounds.maxX = Math.max(bounds.maxX, d.x);
+        bounds.minY = Math.min(bounds.minY, d.y);
+        bounds.maxY = Math.max(bounds.maxY, d.y);
+      }
+    });
+
+    const getHouseColor = (house: string) => {
+      const lower = house.toLowerCase();
+      if (lower.includes("normandy")) return "rgba(239, 68, 68, 0.08)"; // red
+      if (lower.includes("blois")) return "rgba(245, 158, 11, 0.08)"; // amber
+      if (lower.includes("plantagenet")) return "rgba(16, 185, 129, 0.08)"; // emerald
+      if (lower.includes("lancaster")) return "rgba(220, 38, 38, 0.12)"; // red darker
+      if (lower.includes("york")) return "rgba(226, 232, 240, 0.1)"; // slate
+      if (lower.includes("tudor")) return "rgba(22, 163, 74, 0.12)"; // green
+      if (lower.includes("stuart")) return "rgba(139, 92, 246, 0.1)"; // violet
+      if (lower.includes("hanover")) return "rgba(6, 182, 212, 0.08)"; // cyan
+      if (lower.includes("saxe")) return "rgba(99, 102, 241, 0.1)"; // indigo
+      if (lower.includes("windsor")) return "rgba(236, 72, 153, 0.08)"; // pink
+      return "rgba(148, 163, 184, 0.08)"; // default slate
+    };
+
+    const getHouseStroke = (house: string) => {
+      const lower = house.toLowerCase();
+      if (lower.includes("normandy")) return "rgba(239, 68, 68, 0.4)";
+      if (lower.includes("blois")) return "rgba(245, 158, 11, 0.4)";
+      if (lower.includes("plantagenet")) return "rgba(16, 185, 129, 0.4)";
+      if (lower.includes("lancaster")) return "rgba(220, 38, 38, 0.5)";
+      if (lower.includes("york")) return "rgba(226, 232, 240, 0.5)";
+      if (lower.includes("tudor")) return "rgba(22, 163, 74, 0.5)";
+      if (lower.includes("stuart")) return "rgba(139, 92, 246, 0.4)";
+      if (lower.includes("hanover")) return "rgba(6, 182, 212, 0.4)";
+      if (lower.includes("saxe")) return "rgba(99, 102, 241, 0.4)";
+      if (lower.includes("windsor")) return "rgba(236, 72, 153, 0.4)";
+      return "rgba(148, 163, 184, 0.4)";
+    };
+
+    const getHouseTextColor = (house: string) => {
+      const lower = house.toLowerCase();
+      if (lower.includes("normandy")) return "rgba(252, 165, 165, 0.8)";
+      if (lower.includes("blois")) return "rgba(253, 230, 138, 0.8)";
+      if (lower.includes("plantagenet")) return "rgba(110, 231, 183, 0.8)";
+      if (lower.includes("lancaster")) return "rgba(252, 165, 165, 0.8)";
+      if (lower.includes("york")) return "rgba(241, 245, 249, 0.8)";
+      if (lower.includes("tudor")) return "rgba(134, 239, 172, 0.8)";
+      if (lower.includes("stuart")) return "rgba(196, 181, 253, 0.8)";
+      if (lower.includes("hanover")) return "rgba(103, 232, 249, 0.8)";
+      if (lower.includes("saxe")) return "rgba(165, 180, 252, 0.8)";
+      if (lower.includes("windsor")) return "rgba(249, 168, 212, 0.8)";
+      return "rgba(203, 213, 225, 0.8)";
+    };
+
+    const PADDING_X = 60;
+    const PADDING_TOP = 50;
+    const PADDING_BOTTOM = 60;
+
+    Array.from(housesMap.entries()).forEach(([house, bounds]) => {
+      const width = Math.max(bounds.maxX - bounds.minX + PADDING_X * 2, 200);
+      const height = bounds.maxY - bounds.minY + PADDING_TOP + PADDING_BOTTOM;
+      const x =
+        bounds.minX -
+        PADDING_X +
+        (bounds.maxX - bounds.minX + PADDING_X * 2 - width) / 2;
+      const y = bounds.minY - PADDING_TOP;
+
+      const group = g.append("g").attr("class", "house-group");
+
+      group
+        .append("rect")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("rx", 24)
+        .attr("fill", getHouseColor(house))
+        .attr("stroke", getHouseStroke(house))
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "6, 6");
+
+      group
+        .append("text")
+        .attr("x", bounds.minX + (bounds.maxX - bounds.minX) / 2)
+        .attr("y", y + 24)
+        .attr("text-anchor", "middle")
+        .attr("fill", getHouseTextColor(house))
+        .attr("font-size", "14px")
+        .attr("font-weight", "bold")
+        .attr("letter-spacing", "0.05em")
+        .text(t("House of {{house}}", { house: t(house) }));
+    });
+    // --- End House Overlays ---
+
     // Links
     g.selectAll(".link")
       .data(root.links())
