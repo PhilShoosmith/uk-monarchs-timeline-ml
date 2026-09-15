@@ -622,7 +622,7 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
       case 'playing':
       case 'feedback':
         if (!currentMonarch) return null;
-        const incorrectAnswers = currentRound - score;
+        const incorrectAnswers = currentRound + (lastGuess ? 1 : 0) - score;
         return (
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-start min-h-screen py-8">
             {isAdmin && (
