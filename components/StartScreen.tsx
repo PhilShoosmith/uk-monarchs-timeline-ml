@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Monarch, GameMode } from '../types';
 import { useTranslation } from 'react-i18next';
 
@@ -153,6 +153,13 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
   // Calculate a dynamic duration to keep the scroll speed consistent
   const animationDuration = allPortraits.length * 5; // 5 seconds per portrait for a slow, ambient scroll
 
+  const dailyMonarchIndex = useMemo(() => {
+    const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    return daysSinceEpoch % monarchs.length;
+  }, [monarchs.length]);
+  
+  const dailyFactMonarch = monarchs[dailyMonarchIndex];
+
   return (
     <div className="w-full h-screen flex items-center justify-center relative overflow-hidden">
       {/* Background Portrait Carousel */}
@@ -202,76 +209,98 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
         )}
       </div>
 
-      {/* Main Content Card */}
-      <div className="relative text-center p-6 bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 max-w-lg mx-auto z-10 w-11/12 sm:w-auto">
-        <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 animate-fade-in-up">
-          {t("UK Monarchs Timeline")}
-        </h1>
-        <p className="text-sm md:text-base text-slate-300 mb-4 animate-fade-in-up animation-delay-200">
-          {t("How well do you know your British monarchs?")}<br />
-          {t("Choose your challenge to begin!")}
-        </p>
-        <div className="mt-4 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
-          {/* Column 1: Info & Review */}
-          <div className="flex flex-col gap-3 w-full sm:w-48">
-            <h2 className="text-lg font-bold text-yellow-400 mb-1 border-b border-slate-600 pb-1">{t("Learn")}</h2>
-            <button
-              onClick={onShowInstructions}
-              className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
-              aria-label="Show game instructions"
-            >
-              {t("How to Play")}
-            </button>
-            <button
-              onClick={onReview}
-              className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
-              aria-label="Review all monarchs"
-            >
-              {t("Review Monarchs")}
-            </button>
-            <button
-              onClick={onShowFamilyTree}
-              className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
-            >
-              {t("Family Tree")}
-            </button>
-          </div>
+      <div className="z-10 flex flex-col items-center gap-6 w-full max-w-2xl px-4 mt-8 md:mt-0">
+        {/* Main Content Card */}
+        <div className="relative text-center p-6 bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 w-full max-w-lg mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 animate-fade-in-up">
+            {t("UK Monarchs Timeline")}
+          </h1>
+          <p className="text-sm md:text-base text-slate-300 mb-4 animate-fade-in-up animation-delay-200">
+            {t("How well do you know your British monarchs?")}<br />
+            {t("Choose your challenge to begin!")}
+          </p>
+          <div className="mt-4 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
+            {/* Column 1: Info & Review */}
+            <div className="flex flex-col gap-3 w-full sm:w-48">
+              <h2 className="text-lg font-bold text-yellow-400 mb-1 border-b border-slate-600 pb-1">{t("Learn")}</h2>
+              <button
+                onClick={onShowInstructions}
+                className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+                aria-label="Show game instructions"
+              >
+                {t("How to Play")}
+              </button>
+              <button
+                onClick={onReview}
+                className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+                aria-label="Review all monarchs"
+              >
+                {t("Review Monarchs")}
+              </button>
+              <button
+                onClick={onShowFamilyTree}
+                className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+              >
+                {t("Family Tree")}
+              </button>
+            </div>
 
-          {/* Column 2: Game Modes */}
-          <div className="flex flex-col gap-3 w-full sm:w-48">
-            <h2 className="text-lg font-bold text-blue-400 mb-1 border-b border-slate-600 pb-1">{t("Play")}</h2>
-             <button
-              onClick={() => onStart('fact')}
-              className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+            {/* Column 2: Game Modes */}
+            <div className="flex flex-col gap-3 w-full sm:w-48">
+              <h2 className="text-lg font-bold text-blue-400 mb-1 border-b border-slate-600 pb-1">{t("Play")}</h2>
+               <button
+                onClick={() => onStart('fact')}
+                className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+              >
+                {t("Guess the Monarch")}
+              </button>
+              <button
+                onClick={() => onStart('year')}
+                className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+              >
+                {t("Guess the Year")}
+              </button>
+              <button
+                onClick={() => onStart('monarch')}
+                className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+              >
+                {t("Guess the Successor")}
+              </button>
+            </div>
+          </div>
+          
+          <div className="mt-6 flex justify-center animate-fade-in-up animation-delay-500">
+            <button 
+              onClick={onShowHallOfFame}
+              className="flex items-center gap-2 transition-transform duration-200 ease-in-out hover:scale-105 text-white hover:text-slate-200 font-bold"
+              title="Hall of Fame"
+              aria-label="View Hall of Fame"
             >
-              {t("Guess the Monarch")}
-            </button>
-            <button
-              onClick={() => onStart('year')}
-              className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
-            >
-              {t("Guess the Year")}
-            </button>
-            <button
-              onClick={() => onStart('monarch')}
-              className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
-            >
-              {t("Guess the Successor")}
+              <span>{t("Hall of Fame")} &rarr;</span>
+              <span className="text-2xl drop-shadow-md" role="img" aria-label="Gold Medal">🥇</span>
             </button>
           </div>
         </div>
-        
-        <div className="mt-6 flex justify-center animate-fade-in-up animation-delay-500">
-          <button 
-            onClick={onShowHallOfFame}
-            className="flex items-center gap-2 transition-transform duration-200 ease-in-out hover:scale-105 text-white hover:text-slate-200 font-bold"
-            title="Hall of Fame"
-            aria-label="View Hall of Fame"
-          >
-            <span>{t("Hall of Fame")} &rarr;</span>
-            <span className="text-2xl drop-shadow-md" role="img" aria-label="Gold Medal">🥇</span>
-          </button>
-        </div>
+
+        {/* Daily Historical Fact Banner */}
+        {dailyFactMonarch && (
+          <div className="relative w-full max-w-lg mx-auto p-4 bg-slate-800/90 backdrop-blur-md rounded-xl border border-amber-500/30 shadow-2xl animate-fade-in-up animation-delay-600">
+            <div className="flex items-start gap-4">
+              <div className="text-3xl pt-1 drop-shadow-md">👑</div>
+              <div className="text-left flex-1">
+                <h3 className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
+                  {t("Daily Historical Fact")}
+                </h3>
+                <p className="text-slate-200 text-sm italic leading-relaxed">
+                  "{t(dailyFactMonarch.context)}"
+                </p>
+                <p className="text-slate-400 text-xs font-semibold mt-2 text-right">
+                  — {t(dailyFactMonarch.name)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer Links at the bottom of the screen */}
