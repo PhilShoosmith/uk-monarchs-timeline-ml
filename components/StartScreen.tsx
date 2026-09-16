@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Monarch, GameMode } from '../types';
 import { useTranslation } from 'react-i18next';
+import { RotateCw } from 'lucide-react';
 
 const UKFlag = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" className="w-5 h-3.5 rounded-sm shadow-sm object-cover">
@@ -155,10 +156,29 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
 
   const dailyMonarchIndex = useMemo(() => {
     const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    return daysSinceEpoch % monarchs.length;
+    return monarchs.length > 0 ? daysSinceEpoch % monarchs.length : 0;
   }, [monarchs.length]);
   
-  const dailyFactMonarch = monarchs[dailyMonarchIndex];
+  const [currentFactIndex, setCurrentFactIndex] = useState<number>(dailyMonarchIndex);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    setCurrentFactIndex(dailyMonarchIndex);
+  }, [dailyMonarchIndex]);
+
+  const handleRefreshFact = () => {
+    if (monarchs.length <= 1) return;
+    setIsRefreshing(true);
+    setTimeout(() => setIsRefreshing(false), 500);
+
+    let nextIndex = Math.floor(Math.random() * monarchs.length);
+    if (nextIndex === currentFactIndex) {
+      nextIndex = (currentFactIndex + 1) % monarchs.length;
+    }
+    setCurrentFactIndex(nextIndex);
+  };
+
+  const dailyFactMonarch = monarchs[currentFactIndex] || monarchs[0];
 
   return (
     <div className="w-full h-screen flex items-center justify-center relative overflow-hidden">
@@ -285,12 +305,24 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
         {/* Daily Historical Fact Banner */}
         {dailyFactMonarch && (
           <div className="relative w-full max-w-lg mx-auto p-4 bg-slate-800/90 backdrop-blur-md rounded-xl border border-amber-500/30 shadow-2xl animate-fade-in-up animation-delay-600">
-            <div className="flex items-start gap-4">
-              <div className="text-3xl pt-1 drop-shadow-md">👑</div>
-              <div className="text-left flex-1">
-                <h3 className="text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
-                  {t("Daily Historical Fact")}
-                </h3>
+            <div className="flex items-start gap-3.5">
+              <div className="text-3xl pt-0.5 drop-shadow-md flex-shrink-0">👑</div>
+              <div className="text-left flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <h3 className="text-amber-400 text-xs font-bold uppercase tracking-wider">
+                    {t("Daily Historical Fact")}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleRefreshFact}
+                    title={t("Refresh")}
+                    aria-label={t("Refresh")}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-amber-300 bg-slate-750/70 hover:bg-slate-700 active:scale-95 rounded-lg border border-slate-700 hover:border-amber-500/40 transition-all shadow-sm cursor-pointer"
+                  >
+                    <RotateCw className={`w-3 h-3 transition-transform duration-500 ${isRefreshing ? 'animate-spin text-amber-400' : ''}`} />
+                    <span>{t("Refresh")}</span>
+                  </button>
+                </div>
                 <p className="text-slate-200 text-sm italic leading-relaxed">
                   "{t(dailyFactMonarch.context)}"
                 </p>
