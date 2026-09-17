@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GameMode, ScoreEntry } from '../types';
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Confetti from './Confetti';
 
@@ -14,6 +14,7 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
   const { t } = useTranslation();
   const [scores, setScores] = useState<ScoreEntry[]>([]);
   const [activeTab, setActiveTab] = useState<GameMode>('fact');
+  const [timeFilter, setTimeFilter] = useState<'week' | 'month' | 'all-time'>('all-time');
   const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showConfetti, setShowConfetti] = useState(true);
@@ -61,27 +62,41 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
     const fetchScores = async () => {
       setIsLoading(true);
       try {
+        const limitCount = timeFilter === 'all-time' ? 10 : 300;
         const q = query(
           collection(db, 'royal_leaderboard'),
           where('game_mode', '==', activeTab),
           orderBy('score', 'desc'),
           orderBy('time_left', 'desc'),
-          limit(10)
+          limit(limitCount)
         );
 
         const querySnapshot = await getDocs(q);
         
-        const formattedScores: ScoreEntry[] = querySnapshot.docs.map(doc => {
+        const now = new Date();
+        let cutoffDate = new Date(0);
+        if (timeFilter === 'week') {
+          cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        } else if (timeFilter === 'month') {
+          cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        }
+
+        const formattedScores: ScoreEntry[] = [];
+        querySnapshot.docs.forEach(doc => {
           const data = doc.data();
-          return {
-            name: data.name,
-            score: data.score,
-            timeLeft: data.time_left,
-            date: data.created_at?.toDate ? data.created_at.toDate().toISOString() : new Date().toISOString()
-          };
+          const scoreDate = data.created_at?.toDate ? data.created_at.toDate() : new Date();
+          
+          if (scoreDate >= cutoffDate) {
+            formattedScores.push({
+              name: data.name,
+              score: data.score,
+              timeLeft: data.time_left,
+              date: scoreDate.toISOString()
+            });
+          }
         });
 
-        setScores(formattedScores);
+        setScores(formattedScores.slice(0, 10));
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
       } finally {
@@ -90,7 +105,7 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
     };
 
     fetchScores();
-  }, [activeTab]);
+  }, [activeTab, timeFilter]);
 
   const getTitle = (mode: GameMode) => {
     switch (mode) {
@@ -104,29 +119,51 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
     <div className="w-full min-h-screen bg-slate-900 flex flex-col items-center p-4 md:p-8 overflow-y-auto">
       {showConfetti && <Confetti />}
       <div className="max-w-4xl w-full bg-slate-800/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-slate-700 shadow-2xl animate-fade-in-up">
-        <header className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-700 pb-6">
-          <div className="flex items-center gap-3">
-             <div className="bg-amber-500/20 p-2 rounded-full border border-amber-500/50">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
+        <header className="flex flex-col lg:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-700 pb-6 w-full">
+          <div className="flex items-center gap-2">
+             <div className="bg-amber-500/20 p-1.5 rounded-full border border-amber-500/50">
+                <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-amber-400" />
              </div>
-             <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-600 uppercase tracking-tighter">
+             <h1 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-600 uppercase tracking-tighter whitespace-nowrap">
                 {t("Hall of Fame")}
              </h1>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex-1 flex justify-center w-full lg:w-auto overflow-x-auto">
+            <div className="bg-slate-800 p-0.5 rounded-md border border-slate-700 shadow-inner flex text-[10px] sm:text-xs font-semibold mx-2 min-w-max">
+              <button
+                onClick={() => setTimeFilter('week')}
+                className={`px-2 py-1 sm:px-3 sm:py-1 rounded transition-all ${timeFilter === 'week' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                {t("Last Week")}
+              </button>
+              <button
+                onClick={() => setTimeFilter('month')}
+                className={`px-2 py-1 sm:px-3 sm:py-1 rounded transition-all ${timeFilter === 'month' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                {t("Last Month")}
+              </button>
+              <button
+                onClick={() => setTimeFilter('all-time')}
+                className={`px-2 py-1 sm:px-3 sm:py-1 rounded transition-all ${timeFilter === 'all-time' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                {t("All-Time Greats")}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={toggleAudio}
-              className="p-2 bg-slate-700 text-amber-400 rounded-full hover:bg-slate-600 transition-all shadow-lg flex items-center justify-center"
+              className="p-1.5 sm:p-2 bg-slate-700 text-amber-400 rounded-full hover:bg-slate-600 transition-all shadow-lg flex items-center justify-center"
               aria-label={isPlaying ? t("Mute Music") : t("Play Music")}
               title={isPlaying ? t("Mute Music") : t("Play Music")}
             >
-              {isPlaying ? <Volume2 size={24} /> : <VolumeX size={24} />}
+              {isPlaying ? <Volume2 size={18} className="sm:w-6 sm:h-6" /> : <VolumeX size={18} className="sm:w-6 sm:h-6" />}
             </button>
             <button
               onClick={onBack}
-              className="px-6 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all font-bold shadow-lg flex items-center gap-2"
+              className="px-3 py-1.5 sm:px-6 sm:py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all text-xs sm:text-sm font-bold shadow-lg flex items-center gap-2 whitespace-nowrap"
             >
               {t("Back to Menu")}
             </button>
@@ -142,7 +179,7 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
         />
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8 justify-center">
+        <div className="flex flex-wrap gap-2 mb-4 justify-center">
           {(['fact', 'year', 'monarch'] as GameMode[]).map(mode => (
             <button
               key={mode}
