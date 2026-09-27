@@ -18,6 +18,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import HallOfFame from './components/HallOfFame';
 import FamilyTree from './components/FamilyTree';
+import { audioService } from './services/audioService';
 
 interface GroundingSource {
   uri: string;
@@ -183,6 +184,12 @@ const App: React.FC = () => {
 
   const [isInstructionsOpen, setIsInstructionsOpen] = useState<boolean>(false);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(() => audioService.isMuted());
+
+  const handleToggleMute = useCallback(() => {
+    const next = audioService.toggleMute();
+    setIsMuted(next);
+  }, []);
 
   useEffect(() => {
     timeLeftRef.current = timeLeft;
@@ -203,6 +210,8 @@ const App: React.FC = () => {
   }, []);
 
   const startGame = useCallback((mode: GameMode) => {
+    audioService.init();
+    audioService.stopTimerAudio();
     setShowConfetti(false);
     setGameMode(mode);
     const gameMonarchs = mode === 'monarch' 
@@ -252,14 +261,18 @@ const App: React.FC = () => {
   const handleYearGuess = useCallback((guessedYear: number) => {
     if (gameState !== 'playing' || !monarchs[currentRound]) return;
     clearTimer();
+    audioService.stopTimerAudio();
     const correctYear = monarchs[currentRound].reignStart;
     const timedOut = guessedYear === 0;
     const isCorrect = !timedOut && Math.abs(guessedYear - correctYear) <= YEAR_TOLERANCE;
 
     if (isCorrect) {
+      audioService.playCorrectSound();
       setScore(prevScore => prevScore + 1);
       setTotalTimeLeft(prev => prev + timeLeftRef.current);
       setShowConfetti(true);
+    } else {
+      audioService.playIncorrectSound();
     }
 
     setLastGuess({ type: 'year', isCorrect, guessedYear, correctYear, timedOut });
@@ -268,6 +281,7 @@ const App: React.FC = () => {
   const handleMonarchGuess = useCallback((guessedMonarchId: number) => {
     if (gameState !== 'playing' || !monarchs[currentRound]) return;
     clearTimer();
+    audioService.stopTimerAudio();
 
     const currentMonarchInFullList = allMonarchsData.findIndex(m => m.id === monarchs[currentRound].id);
     const correctSuccessor = allMonarchsData[currentMonarchInFullList + 1];
@@ -282,9 +296,12 @@ const App: React.FC = () => {
     const isCorrect = !timedOut && guessedMonarchId === correctMonarchId;
 
     if (isCorrect) {
+      audioService.playCorrectSound();
       setScore(prevScore => prevScore + 1);
       setTotalTimeLeft(prev => prev + timeLeftRef.current);
       setShowConfetti(true);
+    } else {
+      audioService.playIncorrectSound();
     }
 
     setLastGuess({ type: 'monarch', isCorrect, guessedMonarchId, correctMonarchId, timedOut });
@@ -293,14 +310,18 @@ const App: React.FC = () => {
   const handleFactGuess = useCallback((guessedMonarchId: number) => {
     if (gameState !== 'playing' || !monarchs[currentRound]) return;
     clearTimer();
+    audioService.stopTimerAudio();
     const correctMonarchId = monarchs[currentRound].id;
     const timedOut = guessedMonarchId === 0;
     const isCorrect = !timedOut && guessedMonarchId === correctMonarchId;
   
     if (isCorrect) {
+      audioService.playCorrectSound();
       setScore(prevScore => prevScore + 1);
       setTotalTimeLeft(prev => prev + timeLeftRef.current);
       setShowConfetti(true);
+    } else {
+      audioService.playIncorrectSound();
     }
   
     setLastGuess({ type: 'fact', isCorrect, guessedMonarchId, correctMonarchId, timedOut });
@@ -316,6 +337,15 @@ const App: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [lastGuess]);
+
+  // Play tension/clock audio as the 30-second timer progresses to zero
+  useEffect(() => {
+    if (gameState === 'playing' && !isAdmin && !lastGuess) {
+      audioService.onTimerTick(timeLeft);
+    } else {
+      audioService.stopTimerAudio();
+    }
+  }, [timeLeft, gameState, isAdmin, lastGuess]);
 
   useEffect(() => {
     if (gameState === 'playing' && !isAdmin) {
@@ -346,6 +376,8 @@ const App: React.FC = () => {
   }, [gameState, currentRound, isAdmin, gameMode, handleYearGuess, handleMonarchGuess, handleFactGuess, clearTimer]);
 
   const nextRound = useCallback(() => {
+    audioService.init();
+    audioService.stopTimerAudio();
     setShowConfetti(false);
     if (currentRound + 1 < ROUNDS_PER_GAME) {
       setCurrentRound(prev => prev + 1);
@@ -359,6 +391,7 @@ const App: React.FC = () => {
   }, [currentRound]);
 
   const handleStopGame = useCallback(() => {
+    audioService.stopTimerAudio();
     setGameState('start');
   }, []);
 
@@ -684,7 +717,16 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                 )}
               </div>
             )}
-            <Scoreboard score={score} incorrect={incorrectAnswers} round={currentRound + 1} totalRounds={ROUNDS_PER_GAME} timeLeft={timeLeft} isAdmin={isAdmin} />
+            <Scoreboard
+              score={score}
+              incorrect={incorrectAnswers}
+              round={currentRound + 1}
+              totalRounds={ROUNDS_PER_GAME}
+              timeLeft={timeLeft}
+              isAdmin={isAdmin}
+              isMuted={isMuted}
+              onToggleMute={handleToggleMute}
+            />
             
             <div className="mt-16 md:mt-24 w-full flex flex-col lg:flex-row lg:items-start lg:justify-center lg:gap-8">
               <div className="w-full max-w-sm mx-auto lg:mx-0 flex-shrink-0">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ROUND_DURATION_SECONDS } from '../constants';
 import { useTranslation } from 'react-i18next';
+import { Volume2, VolumeX } from 'lucide-react';
 
 interface ScoreboardProps {
   score: number;
@@ -9,9 +10,11 @@ interface ScoreboardProps {
   totalRounds: number;
   timeLeft: number;
   isAdmin: boolean;
+  isMuted?: boolean;
+  onToggleMute?: () => void;
 }
 
-const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalRounds, timeLeft, isAdmin }) => {
+const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalRounds, timeLeft, isAdmin, isMuted, onToggleMute }) => {
   const { t } = useTranslation();
   const isLowTime = timeLeft <= 5;
   const timerColor = isLowTime ? 'text-red-500' : 'text-yellow-300';
@@ -78,13 +81,29 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalR
           </div>
         </div>
 
-        {/* Right Section: Round Info */}
-        <div className="flex flex-col items-center text-slate-300">
-          <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">{t("Progress")}</span>
-          <div className="text-center">
-            <span className="text-white font-bold text-2xl">{round}</span>
-            <span className="text-slate-500 text-sm ml-1">/ {totalRounds}</span>
+        {/* Right Section: Round Info & Audio Control */}
+        <div className="flex items-center justify-end gap-4 text-slate-300">
+          <div className="flex flex-col items-center">
+            <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">{t("Progress")}</span>
+            <div className="text-center">
+              <span className="text-white font-bold text-2xl">{round}</span>
+              <span className="text-slate-500 text-sm ml-1">/ {totalRounds}</span>
+            </div>
           </div>
+          {onToggleMute && (
+            <button
+              onClick={onToggleMute}
+              className={`p-2 rounded-full border transition-all duration-200 cursor-pointer ${
+                isMuted
+                  ? 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200 hover:bg-slate-700'
+                  : 'bg-amber-500/20 text-amber-400 border-amber-500/40 hover:bg-amber-500/30'
+              }`}
+              title={isMuted ? t("Unmute sound", "Unmute sound") : t("Mute sound", "Mute sound")}
+              aria-label={isMuted ? "Unmute sound" : "Mute sound"}
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+          )}
         </div>
       </div>
     </div>
