@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Monarch, GameMode } from '../types';
 import { useTranslation } from 'react-i18next';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, Volume2, VolumeX } from 'lucide-react';
 
 const UKFlag = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" className="w-5 h-3.5 rounded-sm shadow-sm object-cover">
@@ -114,6 +114,55 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
   const { t, i18n } = useTranslation();
   const [isLangOpen, setIsLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = 0.35;
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.log("Autoplay waiting for user gesture:", err);
+          setIsPlaying(false);
+          const handleFirstInteraction = () => {
+            if (audioRef.current) {
+              audioRef.current.play()
+                .then(() => setIsPlaying(true))
+                .catch(() => {});
+            }
+          };
+          window.addEventListener('click', handleFirstInteraction, { once: true });
+          window.addEventListener('keydown', handleFirstInteraction, { once: true });
+          window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+        });
+    }
+
+    return () => {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
+
+  const toggleAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch((e) => console.error("Error playing audio:", e));
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -202,6 +251,38 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
         </div>
       </div>
       
+      {/* Background Audio: Handel - Sarabande HWV 437 */}
+      <audio
+        ref={audioRef}
+        src="/handel-sarabande.mp3"
+        loop
+        preload="auto"
+      />
+
+      {/* Background Music Toggle */}
+      <div className="absolute top-4 left-4 z-50">
+        <button
+          onClick={toggleAudio}
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md border backdrop-blur-md transition-all cursor-pointer ${
+            isPlaying
+              ? 'bg-amber-950/70 border-amber-500/40 text-amber-300 hover:bg-amber-900/80 shadow-md'
+              : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+          }`}
+          title={isPlaying ? t("Pause Music: Handel - Sarabande HWV 437", "Pause Music: Handel - Sarabande HWV 437") : t("Play Music: Handel - Sarabande HWV 437", "Play Music: Handel - Sarabande HWV 437")}
+          aria-label={isPlaying ? "Mute background music" : "Play background music"}
+        >
+          {isPlaying ? (
+            <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
+          ) : (
+            <VolumeX className="w-4 h-4 text-slate-400" />
+          )}
+          <span className="hidden sm:inline">Handel: Sarabande</span>
+          <span className="text-[10px] uppercase font-bold tracking-wider px-1 py-0.5 rounded bg-black/40">
+            {isPlaying ? t("Playing", "Playing") : t("Muted", "Muted")}
+          </span>
+        </button>
+      </div>
+
       {/* Language Selector */}
       <div className="absolute top-4 right-4 z-50" ref={langRef}>
         <button 
