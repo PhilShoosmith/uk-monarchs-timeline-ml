@@ -139,7 +139,7 @@ const InstructionsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-lg">
               <iframe
                 className="absolute inset-0 w-full h-full"
-                src="https://www.youtube-nocookie.com/embed/M3X2tiEUah4"
+                src="https://www.youtube-nocookie.com/embed/sVOdoDPeFR8"
                 title={t("How to Play UK Monarchs Timeline Video Tutorial", "How to Play UK Monarchs Timeline Video Tutorial")}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
@@ -147,7 +147,7 @@ const InstructionsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             </div>
             <div className="mt-2 text-right">
               <a
-                href="https://youtu.be/M3X2tiEUah4"
+                href="https://youtu.be/sVOdoDPeFR8"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-blue-400 hover:text-blue-300 hover:underline inline-flex items-center gap-1"
