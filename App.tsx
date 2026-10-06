@@ -19,6 +19,7 @@ import TermsOfService from './components/TermsOfService';
 import HallOfFame from './components/HallOfFame';
 import FamilyTree from './components/FamilyTree';
 import { audioService } from './services/audioService';
+import HistoricalTimelinesApps from './components/HistoricalTimelinesApps';
 
 interface GroundingSource {
   uri: string;
@@ -87,7 +88,7 @@ const InstructionsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
       aria-labelledby="instructions-modal-title"
     >
       <div
-        className="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-scale-in"
+        className="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl max-w-2xl md:max-w-3xl w-full max-h-[90vh] flex flex-col animate-scale-in"
         onClick={e => e.stopPropagation()}
       >
         <header className="p-4 border-b border-slate-700 flex justify-between items-center flex-shrink-0">
@@ -156,6 +157,9 @@ const InstructionsModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               </a>
             </div>
           </div>
+
+          {/* Historical Timelines Apps section from Timelines Links.pdf */}
+          <HistoricalTimelinesApps />
         </div>
          <footer className="p-4 flex justify-end border-t border-slate-700">
             <button
