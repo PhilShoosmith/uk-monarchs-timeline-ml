@@ -120,7 +120,7 @@ const HistoricalTimelinesApps: React.FC = () => {
               className="flex flex-col items-center p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/50 transition-all duration-300 group shadow-md"
             >
               {/* Medallion Badge */}
-              <div className="relative w-28 h-28 sm:w-36 sm:h-36 mb-3 transform transition-transform duration-300 group-hover:scale-105">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 mb-2 transform transition-transform duration-300 group-hover:scale-105">
                 <img
                   src={app.image}
                   alt={app.title}
@@ -128,6 +128,11 @@ const HistoricalTimelinesApps: React.FC = () => {
                   loading="lazy"
                 />
               </div>
+
+              {/* App Title */}
+              <h4 className="text-sm sm:text-base font-bold text-white text-center mb-2.5 tracking-tight group-hover:text-amber-300 transition-colors">
+                {t(app.title, app.title)}
+              </h4>
 
               {/* Store Links: App Store <- Click -> Google Play */}
               <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 py-1.5 rounded-lg bg-slate-900/80 border border-slate-700 shadow-inner">
