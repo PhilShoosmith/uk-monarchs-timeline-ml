@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Monarch } from '../types';
 import { getMonarchFamily, PersonNode } from '../data/monarchFamilies';
+import { getTenureHighlights } from '../data/tenureHighlights';
+import { TenureHighlightsSection } from './TenureHighlightsSection';
 import { useTranslation } from 'react-i18next';
 import { Crown, ChevronLeft, ChevronRight, Heart, Users, Sparkles, Info, ArrowDown, User } from 'lucide-react';
 
@@ -48,6 +50,10 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
 
   const family = useMemo(() => {
     return getMonarchFamily(currentMonarch.id);
+  }, [currentMonarch]);
+
+  const tenureHighlights = useMemo(() => {
+    return getTenureHighlights(currentMonarch.id);
   }, [currentMonarch]);
 
   const currentIndex = useMemo(() => {
@@ -450,6 +456,11 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
             </div>
           )}
         </div>
+
+        {/* Section: Tenure Highlights */}
+        {tenureHighlights && (
+          <TenureHighlightsSection tenure={tenureHighlights} />
+        )}
       </div>
     </div>
   );
