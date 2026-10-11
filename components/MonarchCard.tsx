@@ -9,6 +9,7 @@ interface MonarchCardProps {
   monarch: Monarch;
   showReign: boolean;
   isAdmin?: boolean;
+  compact?: boolean;
   onPortraitUpload?: (monarchId: number, newImageUrl: string) => void;
   stagedPortraitUrl?: string;
   onCoatOfArmsUpload?: (monarchId: number, newImageUrl: string) => void;
@@ -40,7 +41,7 @@ const getHouseStyles = (house: string): { badge: string; cardHover: string; } =>
   }
 };
 
-const MonarchCard: React.FC<MonarchCardProps> = ({ monarch, showReign, isAdmin, onPortraitUpload, stagedPortraitUrl, onCoatOfArmsUpload, stagedCoatOfArmsUrl }) => {
+const MonarchCard: React.FC<MonarchCardProps> = ({ monarch, showReign, isAdmin, compact, onPortraitUpload, stagedPortraitUrl, onCoatOfArmsUpload, stagedCoatOfArmsUrl }) => {
   const { t } = useTranslation();
   // Guard against missing monarch data
   if (!monarch) {
@@ -94,22 +95,32 @@ const MonarchCard: React.FC<MonarchCardProps> = ({ monarch, showReign, isAdmin, 
   }
   
   return (
-    <div className={`bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-700 flex flex-col items-center w-full max-w-sm transform transition-all duration-500 hover:scale-105 ${styles.cardHover}`}>
+    <div
+      className={`bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 flex flex-col items-center w-full transform transition-all duration-300 hover:scale-[1.02] ${styles.cardHover} ${
+        compact
+          ? 'p-2 sm:p-2.5 max-w-[165px] sm:max-w-[180px]'
+          : 'p-6 max-w-sm hover:scale-105'
+      }`}
+    >
       {/* Ornate Frame for the Portrait */}
-      <div className="bg-gradient-to-br from-gray-700 via-gray-800 to-black p-2 rounded-lg shadow-lg mb-4 w-full">
+      <div
+        className={`bg-gradient-to-br from-gray-700 via-gray-800 to-black rounded-lg shadow-lg w-full ${
+          compact ? 'p-1 mb-1.5' : 'p-2 mb-4'
+        }`}
+      >
         <div 
-          className="relative aspect-[3/4] w-full rounded-md overflow-hidden bg-slate-700 flex items-center justify-center group shadow-inner"
+          className="relative w-full aspect-[3/4] rounded-md overflow-hidden bg-slate-900 flex items-center justify-center group shadow-inner"
         >
           {displayImageUrl ? (
             <img 
               src={displayImageUrl} 
               alt={`Portrait of ${name}`} 
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
               key={displayImageUrl}
             />
           ) : (
-            <span className="text-slate-400">{t("Portrait not available")}</span>
+            <span className="text-slate-400 text-xs sm:text-sm">{t("Portrait not available")}</span>
           )}
           {stagedPortraitUrl && (
             <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-lg pointer-events-none">
@@ -143,34 +154,60 @@ const MonarchCard: React.FC<MonarchCardProps> = ({ monarch, showReign, isAdmin, 
       <div 
         className="text-center w-full"
       >
-        <h2 className="text-3xl sm:text-4xl font-bold text-center text-white pointer-events-none">{t(name)}</h2>
-        <p className="text-lg sm:text-xl text-slate-400 mt-2 pointer-events-none">{t(title)}</p>
-        <div className={`text-md mt-2 font-semibold px-3 py-1 rounded-full inline-flex items-center gap-2 ${styles.badge} pointer-events-none`}>
-          <HouseIcon house={house} className="h-5 w-5" />
-          <span>{t(`House of {{house}}`, { house: t(house) })}</span>
+        <h2
+          className={`font-bold text-center text-white pointer-events-none ${
+            compact ? 'text-base sm:text-lg truncate px-1' : 'text-3xl sm:text-4xl'
+          }`}
+        >
+          {t(name)}
+        </h2>
+        <p
+          className={`text-slate-400 pointer-events-none truncate ${
+            compact ? 'text-[11px] sm:text-xs mt-0.5' : 'text-lg sm:text-xl mt-2'
+          }`}
+        >
+          {t(title)}
+        </p>
+        <div
+          className={`font-semibold rounded-full inline-flex items-center gap-1 ${styles.badge} pointer-events-none ${
+            compact ? 'text-[11px] mt-1 px-2 py-0.5' : 'text-md mt-2 px-3 py-1 gap-2'
+          }`}
+        >
+          <HouseIcon house={house} className={compact ? 'h-3 w-3' : 'h-5 w-5'} />
+          <span className="truncate">{t(`House of {{house}}`, { house: t(house) })}</span>
         </div>
       </div>
       
       {showReign && (
-        <p className="text-md text-amber-300/80 mt-2 font-mono">
+        <p className={`text-amber-300/80 font-mono ${compact ? 'text-[11px] mt-0.5' : 'text-md mt-2'}`}>
           {reignStart} – {reignEndDisplay} {durationDisplay}
         </p>
       )}
 
-      <div className="mt-6 pt-6 w-full border-t border-slate-700/50 flex justify-center">
-        <div className="flex items-center justify-center gap-4">
-          <div className="w-8 h-8 text-slate-400 animate-rise-up" aria-hidden="true">
+      <div
+        className={`w-full border-t border-slate-700/50 flex justify-center ${
+          compact ? 'mt-1.5 pt-1.5' : 'mt-6 pt-6'
+        }`}
+      >
+        <div className="flex items-center justify-center gap-1.5 sm:gap-3">
+          <div
+            className={`text-slate-400 animate-rise-up ${compact ? 'w-3 h-3' : 'w-8 h-8'}`}
+            aria-hidden="true"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75" />
             </svg>
           </div>
           <CoatOfArms
-              className="w-28 h-28"
+              className={compact ? 'w-8 h-8 sm:w-10 sm:h-10' : 'w-28 h-28'}
               isAdmin={isAdmin}
               imageUrl={stagedCoatOfArmsUrl || monarch.coatOfArmsUrl}
               onImageUpload={handleCoatOfArmsUpload}
           />
-          <div className="w-8 h-8 text-slate-400 animate-rise-up" aria-hidden="true">
+          <div
+            className={`text-slate-400 animate-rise-up ${compact ? 'w-3 h-3' : 'w-8 h-8'}`}
+            aria-hidden="true"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75" />
             </svg>

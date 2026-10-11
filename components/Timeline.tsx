@@ -89,7 +89,7 @@ const Timeline: React.FC<TimelineProps> = ({
   }
 
   return (
-    <div className="w-full py-8 px-4 relative">
+    <div className="w-full py-3 sm:py-4 px-2 sm:px-4 relative">
       {/* Historical Periods Background */}
       <div className="relative mb-3 w-full h-10 flex items-center rounded-lg overflow-hidden border border-slate-700">
         {HISTORICAL_PERIODS.map((period) => (

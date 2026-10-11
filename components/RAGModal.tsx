@@ -33,7 +33,7 @@ const RAGModal: React.FC<RAGModalProps> = ({ isOpen, isLoading, isTranslating, c
               <img 
                 src={content.imageUrl} 
                 alt={content.title} 
-                className="w-16 h-20 object-cover rounded-md shadow-md border border-slate-600"
+                className="w-16 h-20 object-cover object-top rounded-md shadow-md border border-slate-600"
               />
             )}
             <div className="flex items-center gap-3 flex-wrap">
