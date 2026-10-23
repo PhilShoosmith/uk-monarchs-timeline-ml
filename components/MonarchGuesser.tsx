@@ -30,13 +30,13 @@ const MonarchGuesser: React.FC<MonarchGuesserProps> = ({ options, onSubmit, disa
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3.5 w-full">
       {options.map((monarch) => (
         <button
           key={monarch.id}
           onClick={() => onSubmit(monarch.id)}
           disabled={disabled}
-          className={`px-4 py-3 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-md disabled:cursor-not-allowed ${getButtonClass(monarch.id)}`}
+          className={`px-2.5 py-2 sm:px-4 sm:py-3 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-md disabled:cursor-not-allowed text-xs sm:text-base truncate ${getButtonClass(monarch.id)}`}
           aria-label={t("Select {{name}}", { name: t(monarch.name) })}
         >
           {t(monarch.name)}

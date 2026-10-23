@@ -73,7 +73,7 @@ const NextMonarchGuesser: React.FC<NextMonarchGuesserProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col sm:flex-row items-center gap-4 w-full"
+      className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full"
       ref={dropdownRef}
     >
       <div className="relative w-full flex-grow">
@@ -88,13 +88,13 @@ const NextMonarchGuesser: React.FC<NextMonarchGuesserProps> = ({
           onFocus={() => setShowDropdown(true)}
           disabled={disabled}
           placeholder={t("Select a monarch...")}
-          className="bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white text-lg w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 disabled:opacity-50"
+          className="bg-slate-700/60 border border-slate-600 rounded-lg px-3 py-1.5 sm:px-4 sm:py-3 text-white text-xs sm:text-base w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 disabled:opacity-50"
           aria-label={t("Select the next monarch")}
         />
         {showDropdown && !disabled && (
-          <ul className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto bg-slate-800 border border-slate-600 rounded-lg shadow-xl scrollbar-thin scrollbar-thumb-slate-600">
+          <ul className="absolute z-50 w-full mt-1 max-h-44 sm:max-h-60 overflow-y-auto bg-slate-800 border border-slate-600 rounded-lg shadow-xl scrollbar-thin scrollbar-thumb-slate-600">
             {filteredMonarchs.length === 0 ? (
-              <li className="px-4 py-3 text-slate-400">
+              <li className="px-3 py-2 text-xs sm:text-sm text-slate-400">
                 {t("No monarchs found")}
               </li>
             ) : (
@@ -102,7 +102,7 @@ const NextMonarchGuesser: React.FC<NextMonarchGuesserProps> = ({
                 <li
                   key={monarch.id}
                   onClick={() => handleSelect(monarch)}
-                  className="px-4 py-3 text-white hover:bg-purple-600/50 cursor-pointer transition-colors"
+                  className="px-3 py-2 text-xs sm:text-sm text-white hover:bg-purple-600/50 cursor-pointer transition-colors"
                 >
                   {t(monarch.name)}
                 </li>
@@ -114,7 +114,7 @@ const NextMonarchGuesser: React.FC<NextMonarchGuesserProps> = ({
       <button
         type="submit"
         disabled={disabled || !selectedId}
-        className={`w-full sm:w-auto px-6 py-3 text-white font-bold rounded-lg transform transition-all duration-300 ease-in-out shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 focus:outline-none ${feedbackClass}`}
+        className={`w-full sm:w-auto px-4 py-1.5 sm:px-6 sm:py-3 text-xs sm:text-base text-white font-bold rounded-lg transform transition-all duration-300 ease-in-out shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 focus:outline-none ${feedbackClass}`}
       >
         {t("Submit")}
       </button>

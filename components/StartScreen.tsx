@@ -230,9 +230,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
   const dailyFactMonarch = monarchs[currentFactIndex] || monarchs[0];
 
   return (
-    <div className="w-full h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="w-full min-h-[100dvh] h-[100dvh] max-h-[100dvh] flex flex-col justify-between items-center py-2 sm:py-5 px-3 sm:px-4 relative overflow-hidden">
       {/* Background Portrait Carousel */}
-      <div className="absolute inset-0 flex items-center opacity-20 scale-110 blur-sm">
+      <div className="absolute inset-0 flex items-center opacity-20 scale-110 blur-sm pointer-events-none">
         <div 
           className="flex-shrink-0 flex items-center"
           style={{ animation: `scroll ${animationDuration}s linear infinite` }}
@@ -259,11 +259,12 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
         preload="auto"
       />
 
-      {/* Background Music Toggle */}
-      <div className="absolute top-4 left-4 z-50">
+      {/* Top Controls Bar (Music & Language) */}
+      <div className="w-full max-w-xl mx-auto flex items-center justify-between z-30 px-1 py-1 flex-shrink-0">
+        {/* Background Music Toggle */}
         <button
           onClick={toggleAudio}
-          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md border backdrop-blur-md transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs font-medium rounded-md border backdrop-blur-md transition-all cursor-pointer ${
             isPlaying
               ? 'bg-amber-950/70 border-amber-500/40 text-amber-300 hover:bg-amber-900/80 shadow-md'
               : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
@@ -272,125 +273,126 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
           aria-label={isPlaying ? "Mute background music" : "Play background music"}
         >
           {isPlaying ? (
-            <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
+            <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 animate-pulse" />
           ) : (
-            <VolumeX className="w-4 h-4 text-slate-400" />
+            <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
           )}
-          <span className="hidden sm:inline">Handel: Sarabande</span>
-          <span className="text-[10px] uppercase font-bold tracking-wider px-1 py-0.5 rounded bg-black/40">
+          <span className="hidden xs:inline sm:inline">Handel: Sarabande</span>
+          <span className="text-[9px] uppercase font-bold tracking-wider px-1 py-0.5 rounded bg-black/40">
             {isPlaying ? t("Playing", "Playing") : t("Muted", "Muted")}
           </span>
         </button>
+
+        {/* Language Selector */}
+        <div className="relative" ref={langRef}>
+          <button 
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            className="flex items-center gap-1.5 sm:gap-2 bg-slate-800 text-white border border-slate-600 rounded-md px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-slate-700 transition-colors cursor-pointer"
+          >
+            {currentLang.icon}
+            <span>{currentLang.label}</span>
+            <svg className={`w-3.5 h-3.5 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          {isLangOpen && (
+            <div className="absolute right-0 mt-1 w-full min-w-[120px] bg-slate-800 border border-slate-600 rounded-md shadow-lg overflow-hidden z-50">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-left hover:bg-slate-700 transition-colors ${i18n.language === lang.code ? 'bg-slate-700/50' : ''}`}
+                >
+                  {lang.icon}
+                  <span>{lang.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Language Selector */}
-      <div className="absolute top-4 right-4 z-50" ref={langRef}>
-        <button 
-          onClick={() => setIsLangOpen(!isLangOpen)}
-          className="flex items-center gap-2 bg-slate-800 text-white border border-slate-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-slate-700 transition-colors"
-        >
-          {currentLang.icon}
-          <span>{currentLang.label}</span>
-          <svg className={`w-4 h-4 transition-transform ${isLangOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-        
-        {isLangOpen && (
-          <div className="absolute right-0 mt-1 w-full min-w-[120px] bg-slate-800 border border-slate-600 rounded-md shadow-lg overflow-hidden">
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => handleLanguageChange(lang.code)}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-slate-700 transition-colors ${i18n.language === lang.code ? 'bg-slate-700/50' : ''}`}
-              >
-                {lang.icon}
-                <span>{lang.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="z-10 flex flex-col items-center gap-6 w-full max-w-2xl px-4 mt-8 md:mt-0">
+      {/* Main Content Area */}
+      <div className="z-10 flex flex-col items-center gap-2 sm:gap-4 w-full max-w-xl px-1 sm:px-4 my-auto flex-1 min-h-0 justify-center">
         {/* Main Content Card */}
-        <div className="relative text-center p-6 bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 w-full max-w-lg mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 animate-fade-in-up">
+        <div className="relative text-center p-3.5 sm:p-6 bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 w-full max-w-lg mx-auto">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-1 sm:mb-2 animate-fade-in-up">
             {t("UK Monarchs Timeline")}
           </h1>
-          <p className="text-sm md:text-base text-slate-300 mb-4 animate-fade-in-up animation-delay-200">
+          <p className="text-xs sm:text-sm md:text-base text-slate-300 mb-2.5 sm:mb-4 animate-fade-in-up animation-delay-200">
             {t("How well do you know your British monarchs?")}<br />
             {t("Choose your challenge to begin!")}
           </p>
-          <div className="mt-4 flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
+          <div className="mt-2 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-4 justify-center animate-fade-in-up animation-delay-400">
             {/* Column 1: Info & Review */}
-            <div className="flex flex-col gap-3 w-full sm:w-48">
-              <h2 className="text-lg font-bold text-yellow-400 mb-1 border-b border-slate-600 pb-1">{t("Learn")}</h2>
+            <div className="flex flex-col gap-2 sm:gap-3 w-full">
+              <h2 className="text-xs sm:text-base font-bold text-yellow-400 mb-0.5 border-b border-slate-600 pb-0.5">{t("Learn")}</h2>
               <button
                 onClick={onShowInstructions}
-                className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+                className="w-full px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50 truncate"
                 aria-label="Show game instructions"
               >
                 {t("How to Play")}
               </button>
               <button
                 onClick={onReview}
-                className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+                className="w-full px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-4 focus:ring-yellow-400/50 truncate"
                 aria-label="Review all monarchs"
               >
                 {t("Review Monarchs")}
               </button>
               <button
                 onClick={onShowFamilyTree}
-                className="w-full px-4 py-2 text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-yellow-400/50"
+                className="w-full px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-yellow-400/50 truncate"
               >
                 {t("Family Tree")}
               </button>
             </div>
 
             {/* Column 2: Game Modes */}
-            <div className="flex flex-col gap-3 w-full sm:w-48">
-              <h2 className="text-lg font-bold text-blue-400 mb-1 border-b border-slate-600 pb-1">{t("Play")}</h2>
+            <div className="flex flex-col gap-2 sm:gap-3 w-full">
+              <h2 className="text-xs sm:text-base font-bold text-blue-400 mb-0.5 border-b border-slate-600 pb-0.5">{t("Play")}</h2>
                <button
                 onClick={() => onStart('fact')}
-                className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+                className="w-full px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 truncate"
               >
                 {t("Guess the Monarch")}
               </button>
               <button
                 onClick={() => onStart('year')}
-                className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+                className="w-full px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 truncate"
               >
                 {t("Guess the Year")}
               </button>
               <button
                 onClick={() => onStart('monarch')}
-                className="w-full px-4 py-2 text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+                className="w-full px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 ease-in-out shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 truncate"
               >
                 {t("Guess the Successor")}
               </button>
             </div>
           </div>
           
-          <div className="mt-6 flex justify-center animate-fade-in-up animation-delay-500">
+          <div className="mt-2.5 sm:mt-5 flex justify-center animate-fade-in-up animation-delay-500">
             <button 
               onClick={onShowHallOfFame}
-              className="flex items-center gap-2 transition-transform duration-200 ease-in-out hover:scale-105 text-white hover:text-slate-200 font-bold"
+              className="flex items-center gap-1.5 transition-transform duration-200 ease-in-out hover:scale-105 text-white hover:text-slate-200 font-bold text-xs sm:text-sm"
               title="Hall of Fame"
               aria-label="View Hall of Fame"
             >
               <span>{t("Hall of Fame")} &rarr;</span>
-              <span className="text-2xl drop-shadow-md" role="img" aria-label="Gold Medal">🥇</span>
+              <span className="text-xl sm:text-2xl drop-shadow-md" role="img" aria-label="Gold Medal">🥇</span>
             </button>
           </div>
         </div>
 
         {/* Daily Historical Fact Banner */}
         {dailyFactMonarch && (
-          <div className="relative w-full max-w-lg mx-auto p-4 bg-slate-800/90 backdrop-blur-md rounded-xl border border-amber-500/30 shadow-2xl animate-fade-in-up animation-delay-600">
-            <div className="flex items-start gap-3.5">
-              <div className="text-3xl pt-0.5 drop-shadow-md flex-shrink-0">👑</div>
+          <div className="relative w-full max-w-lg mx-auto p-2.5 sm:p-3.5 bg-slate-800/90 backdrop-blur-md rounded-xl border border-amber-500/30 shadow-xl animate-fade-in-up animation-delay-600">
+            <div className="flex items-start gap-2.5 sm:gap-3">
+              <div className="text-2xl sm:text-3xl pt-0.5 drop-shadow-md flex-shrink-0">👑</div>
               <div className="text-left flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <h3 className="text-amber-400 text-xs font-bold uppercase tracking-wider">
+                <div className="flex items-center justify-between gap-1.5 mb-1">
+                  <h3 className="text-amber-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider">
                     {t("Daily Historical Fact")}
                   </h3>
                   <button
@@ -398,16 +400,16 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
                     onClick={handleRefreshFact}
                     title={t("Refresh")}
                     aria-label={t("Refresh")}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-amber-300 bg-slate-750/70 hover:bg-slate-700 active:scale-95 rounded-lg border border-slate-700 hover:border-amber-500/40 transition-all shadow-sm cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] sm:text-xs font-semibold text-slate-300 hover:text-amber-300 bg-slate-750/70 hover:bg-slate-700 active:scale-95 rounded border border-slate-700 hover:border-amber-500/40 transition-all cursor-pointer"
                   >
-                    <RotateCw className={`w-3 h-3 transition-transform duration-500 ${isRefreshing ? 'animate-spin text-amber-400' : ''}`} />
+                    <RotateCw className={`w-2.5 h-2.5 sm:w-3 sm:h-3 transition-transform duration-500 ${isRefreshing ? 'animate-spin text-amber-400' : ''}`} />
                     <span>{t("Refresh")}</span>
                   </button>
                 </div>
-                <p className="text-slate-200 text-sm italic leading-relaxed">
+                <p className="text-slate-200 text-xs sm:text-sm italic leading-snug line-clamp-2 sm:line-clamp-3">
                   "{t(dailyFactMonarch.context)}"
                 </p>
-                <p className="text-slate-400 text-xs font-semibold mt-2 text-right">
+                <p className="text-slate-400 text-[10px] sm:text-xs font-semibold mt-1 text-right">
                   — {t(dailyFactMonarch.name)}
                 </p>
               </div>
@@ -417,10 +419,10 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStart, monarchs, onShowInst
       </div>
 
       {/* Footer Links at the bottom of the screen */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-4 text-xs text-slate-500 font-medium animate-fade-in-up animation-delay-600 z-20 px-4 flex-wrap">
-        <button onClick={onPrivacy} className="hover:text-slate-300 transition-colors hover:underline">{t("Privacy Policy")}</button>
+      <div className="w-full flex justify-center items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-slate-500 font-medium z-20 px-4 py-1 flex-wrap flex-shrink-0">
+        <button onClick={onPrivacy} className="hover:text-slate-300 transition-colors hover:underline cursor-pointer">{t("Privacy Policy")}</button>
         <span>&bull;</span>
-        <button onClick={onTerms} className="hover:text-slate-300 transition-colors hover:underline">{t("Terms of Service")}</button>
+        <button onClick={onTerms} className="hover:text-slate-300 transition-colors hover:underline cursor-pointer">{t("Terms of Service")}</button>
         <span>&bull;</span>
         <div className="flex items-center gap-2">
           <a 

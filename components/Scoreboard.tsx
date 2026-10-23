@@ -27,17 +27,17 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalR
   const strokeDashoffset = circumference - progress * circumference;
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md py-1.5 sm:py-2 px-3 sm:px-6 z-50 border-b border-slate-700/80 shadow-xl">
+    <div className="w-full bg-slate-900/95 backdrop-blur-md py-1 sm:py-1.5 px-2.5 sm:px-6 z-40 border-b border-slate-700/80 shadow-md flex-shrink-0">
       <div className="max-w-7xl mx-auto grid grid-cols-3 items-center">
         {/* Left Section: Score */}
-        <div className="flex items-center gap-3 sm:gap-6 text-slate-300">
+        <div className="flex items-center gap-2 xs:gap-3 sm:gap-6 text-slate-300">
           <div className="flex flex-col items-center">
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-slate-400 font-bold">{t("Correct")}</span>
-            <span className="text-green-400 font-bold text-lg sm:text-2xl leading-tight">{score}</span>
+            <span className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-bold">{t("Correct")}</span>
+            <span className="text-green-400 font-bold text-sm xs:text-base sm:text-xl leading-tight">{score}</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-slate-400 font-bold">{t("Wrong")}</span>
-            <span className="text-red-400 font-bold text-lg sm:text-2xl leading-tight">{incorrect}</span>
+            <span className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-bold">{t("Wrong")}</span>
+            <span className="text-red-400 font-bold text-sm xs:text-base sm:text-xl leading-tight">{incorrect}</span>
           </div>
         </div>
 
@@ -45,13 +45,13 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalR
         <div className="flex flex-col items-center justify-center">
           {title && (
             <div className="text-center mb-0.5 leading-tight">
-              <span className="text-[9px] sm:text-[11px] uppercase tracking-widest text-slate-400 font-semibold">{t("UK Monarchs Timeline")}</span>
-              <h1 className="text-xs sm:text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300">
+              <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-semibold hidden xs:block">{t("UK Monarchs Timeline")}</span>
+              <h1 className="text-[11px] sm:text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 line-clamp-1">
                 {t(title)}
               </h1>
             </div>
           )}
-          <div className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14">
+          <div className="relative flex items-center justify-center w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11">
             {/* Background Circle */}
             <svg className="absolute w-full h-full -rotate-90" viewBox="0 0 100 100">
               <circle
@@ -84,25 +84,25 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalR
             </svg>
             
             {/* Timer Text */}
-            <div className={`relative z-10 text-xl sm:text-2xl font-bold font-mono tracking-tighter transition-colors duration-300 ${isAdmin ? 'text-cyan-400' : timerColor} ${isLowTime && !isAdmin ? 'animate-pulse' : ''}`}>
+            <div className={`relative z-10 text-sm xs:text-base sm:text-lg font-bold font-mono tracking-tighter transition-colors duration-300 ${isAdmin ? 'text-cyan-400' : timerColor} ${isLowTime && !isAdmin ? 'animate-pulse' : ''}`}>
               {isAdmin ? '∞' : timeLeft}
             </div>
           </div>
         </div>
 
         {/* Right Section: Round Info & Audio Control */}
-        <div className="flex items-center justify-end gap-3 sm:gap-4 text-slate-300">
+        <div className="flex items-center justify-end gap-2 xs:gap-3 sm:gap-4 text-slate-300">
           <div className="flex flex-col items-center">
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-slate-400 font-bold">{t("Progress")}</span>
+            <span className="text-[8px] xs:text-[9px] sm:text-xs uppercase tracking-wider text-slate-400 font-bold">{t("Progress")}</span>
             <div className="text-center leading-tight">
-              <span className="text-white font-bold text-xl sm:text-2xl">{round}</span>
-              <span className="text-slate-500 text-xs sm:text-sm ml-1">/ {totalRounds}</span>
+              <span className="text-white font-bold text-sm xs:text-base sm:text-xl">{round}</span>
+              <span className="text-slate-500 text-[10px] sm:text-xs ml-0.5 sm:ml-1">/{totalRounds}</span>
             </div>
           </div>
           {onToggleMute && (
             <button
               onClick={onToggleMute}
-              className={`p-1.5 sm:p-2 rounded-full border transition-all duration-200 cursor-pointer ${
+              className={`p-1 sm:p-1.5 rounded-full border transition-all duration-200 cursor-pointer ${
                 isMuted
                   ? 'bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200 hover:bg-slate-700'
                   : 'bg-amber-500/20 text-amber-400 border-amber-500/40 hover:bg-amber-500/30'
@@ -110,7 +110,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ score, incorrect, round, totalR
               title={isMuted ? t("Unmute sound", "Unmute sound") : t("Mute sound", "Mute sound")}
               aria-label={isMuted ? "Unmute sound" : "Mute sound"}
             >
-              {isMuted ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />}
+              {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
           )}
         </div>

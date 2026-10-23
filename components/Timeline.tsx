@@ -89,13 +89,13 @@ const Timeline: React.FC<TimelineProps> = ({
   }
 
   return (
-    <div className="w-full py-3 sm:py-4 px-2 sm:px-4 relative">
+    <div className="w-full py-1 sm:py-3 px-1 sm:px-4 relative">
       {/* Historical Periods Background */}
-      <div className="relative mb-3 w-full h-10 flex items-center rounded-lg overflow-hidden border border-slate-700">
+      <div className="relative mb-1.5 sm:mb-2.5 w-full h-6 xs:h-7 sm:h-9 flex items-center rounded-lg overflow-hidden border border-slate-700">
         {HISTORICAL_PERIODS.map((period) => (
           <div
             key={period.name}
-            className={`h-full flex items-center justify-center gap-1 sm:gap-2 px-1 sm:px-2 overflow-hidden ${period.color}`}
+            className={`h-full flex items-center justify-center gap-0.5 sm:gap-2 px-1 sm:px-2 overflow-hidden ${period.color}`}
             style={{
               position: "absolute",
               left: `${yearToPercentage(period.start)}%`,
@@ -104,10 +104,10 @@ const Timeline: React.FC<TimelineProps> = ({
           >
             <HouseIcon
               house={periodToHouseMap[period.name]}
-              className={`shrink-0 h-4 w-4 sm:h-5 sm:w-5 opacity-80 ${period.textColor}`}
+              className={`shrink-0 h-2.5 w-2.5 sm:h-4 sm:w-4 opacity-80 ${period.textColor}`}
             />
             <span
-              className={`text-xs sm:text-sm font-semibold opacity-80 select-none truncate ${period.textColor}`}
+              className={`text-[9px] xs:text-[10px] sm:text-xs font-semibold opacity-80 select-none truncate ${period.textColor}`}
             >
               {t(period.name)}
             </span>
@@ -239,7 +239,7 @@ const Timeline: React.FC<TimelineProps> = ({
       </div>
 
       {/* Century Markers */}
-      <div className="mt-4 w-full h-6 relative">
+      <div className="mt-1.5 sm:mt-3 w-full h-4 sm:h-5 relative">
         {centuryMarkers.map((year) => (
           <div
             key={year}
@@ -249,8 +249,8 @@ const Timeline: React.FC<TimelineProps> = ({
               transform: "translateX(-50%)",
             }}
           >
-            <div className="w-px h-2 bg-slate-600"></div>
-            <span className="text-xs text-slate-500 select-none">{year}</span>
+            <div className="w-px h-1.5 sm:h-2 bg-slate-600"></div>
+            <span className="text-[8px] xs:text-[9px] sm:text-xs text-slate-500 select-none">{year}</span>
           </div>
         ))}
       </div>
