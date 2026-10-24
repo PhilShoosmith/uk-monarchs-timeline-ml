@@ -116,9 +116,9 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-900 flex flex-col items-center p-4 md:p-8 overflow-y-auto">
+    <div className="w-full min-h-screen bg-slate-900 flex flex-col items-center p-2.5 xs:p-4 md:p-8 overflow-y-auto">
       {showConfetti && <Confetti />}
-      <div className="max-w-4xl w-full bg-slate-800/90 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-slate-700 shadow-2xl animate-fade-in-up">
+      <div className="max-w-4xl w-full bg-slate-800/90 backdrop-blur-md p-3 xs:p-4 sm:p-6 md:p-8 rounded-2xl border border-slate-700 shadow-2xl animate-fade-in-up">
         <header className="flex flex-col lg:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-700 pb-6 w-full">
           <div className="flex items-center gap-2">
              <div className="bg-amber-500/20 p-1.5 rounded-full border border-amber-500/50">
@@ -204,21 +204,21 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-700 text-slate-400 text-[10px] sm:text-xs uppercase tracking-widest">
-                  <th className="py-3 px-2 sm:px-4 font-black">{t("Rank")}</th>
-                  <th className="py-3 px-2 sm:px-4 font-black">{t("Player")}</th>
-                  <th className="py-3 px-2 sm:px-4 font-black text-center">{t("Correct")}</th>
-                  <th className="py-3 px-2 sm:px-4 font-black text-center">{t("Time Left")}</th>
-                  <th className="py-3 px-2 sm:px-4 font-black text-right hidden sm:table-cell">{t("Date")}</th>
+                <tr className="border-b border-slate-700 text-slate-400 text-[9px] xs:text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest">
+                  <th className="py-2.5 px-1 xs:px-2 sm:px-4 font-black">{t("Rank")}</th>
+                  <th className="py-2.5 px-1 xs:px-2 sm:px-4 font-black">{t("Player")}</th>
+                  <th className="py-2.5 px-1 xs:px-2 sm:px-4 font-black text-center">{t("Correct")}</th>
+                  <th className="py-2.5 px-1 xs:px-2 sm:px-4 font-black text-center">{t("Time Left")}</th>
+                  <th className="py-2.5 px-1 xs:px-2 sm:px-4 font-black text-right">{t("Date")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700/50">
                 {scores.length > 0 ? (
                   scores.map((entry, index) => (
                     <tr key={index} className={`group hover:bg-slate-700/30 transition-colors ${index === 0 ? 'bg-amber-500/5' : ''}`}>
-                      <td className="py-3 px-2 sm:px-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-6 h-6 sm:w-8 sm:h-8 text-xs sm:text-base rounded-full flex items-center justify-center font-bold ${
+                      <td className="py-2.5 px-1 xs:px-2 sm:px-4">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <span className={`w-5 h-5 sm:w-8 sm:h-8 text-[10px] sm:text-base rounded-full flex items-center justify-center font-bold ${
                             index === 0 ? 'bg-amber-400 text-amber-950 scale-110 shadow-[0_0_10px_rgba(251,191,36,0.5)]' :
                             index === 1 ? 'bg-slate-300 text-slate-900' :
                             index === 2 ? 'bg-amber-700 text-amber-100' : 'bg-slate-800 text-slate-400'
@@ -227,17 +227,18 @@ const HallOfFame: React.FC<HallOfFameProps> = ({ onBack }) => {
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-2 sm:px-4 font-bold text-sm sm:text-base text-slate-100 group-hover:text-blue-400 transition-colors truncate max-w-[100px] sm:max-w-[200px]">
+                      <td className="py-2.5 px-1 xs:px-2 sm:px-4 font-bold text-xs sm:text-base text-slate-100 group-hover:text-blue-400 transition-colors truncate max-w-[75px] xs:max-w-[110px] sm:max-w-[200px]">
                         {entry.name}
                       </td>
-                      <td className="py-3 px-2 sm:px-4 text-center">
-                        <span className="text-green-400 font-black text-base sm:text-lg">{entry.score}</span>
+                      <td className="py-2.5 px-1 xs:px-2 sm:px-4 text-center">
+                        <span className="text-green-400 font-black text-xs sm:text-lg">{entry.score}</span>
                       </td>
-                      <td className="py-3 px-2 sm:px-4 text-center">
-                        <span className="text-yellow-400 font-mono font-bold text-xs sm:text-sm">{entry.timeLeft}s</span>
+                      <td className="py-2.5 px-1 xs:px-2 sm:px-4 text-center">
+                        <span className="text-yellow-400 font-mono font-bold text-[10px] sm:text-sm">{entry.timeLeft}s</span>
                       </td>
-                      <td className="py-3 px-2 sm:px-4 text-right text-slate-500 text-xs sm:text-sm hidden sm:table-cell">
-                        {new Date(entry.date).toLocaleDateString('en-GB')}
+                      <td className="py-2.5 px-1 xs:px-2 sm:px-4 text-right text-slate-400 font-mono text-[9px] xs:text-[10px] sm:text-sm whitespace-nowrap">
+                        <span className="hidden sm:inline">{new Date(entry.date).toLocaleDateString('en-GB')}</span>
+                        <span className="sm:hidden">{new Date(entry.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
                       </td>
                     </tr>
                   ))
