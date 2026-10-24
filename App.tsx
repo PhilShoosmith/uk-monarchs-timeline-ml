@@ -757,10 +757,10 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                 title={gameMode === 'year' ? t('Guess the Year') : gameMode === 'monarch' ? t('Guess the Successor') : t('Guess the Monarch')}
               />
               
-              <div className="flex-1 min-h-0 flex flex-col justify-center my-auto w-full py-1 sm:py-2">
+              <div className="flex-1 min-h-0 flex flex-col items-center justify-center my-auto w-full py-1 sm:py-2">
                 {gameMode === 'year' ? (
-                  <div className="w-full flex flex-row items-center justify-center gap-2 xs:gap-3 sm:gap-6 max-w-3xl mx-auto">
-                    <div className="w-[115px] xs:w-[130px] sm:w-[160px] md:w-auto flex-shrink-0">
+                  <div className="w-full flex flex-col items-center justify-center max-w-md mx-auto">
+                    <div className="flex-shrink-0 mb-1.5 sm:mb-2.5">
                       <MonarchCard
                         monarch={currentMonarch}
                         showReign={gameState === 'feedback' || isAdmin}
@@ -772,7 +772,7 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                         stagedCoatOfArmsUrl={stagedCoatOfArmsChanges[currentMonarch?.id]}
                       />
                     </div>
-                    <div className="flex-1 min-w-0 max-w-md">
+                    <div className="w-full">
                       {gameState === 'feedback' ? (
                         <Feedback
                           lastGuess={lastGuess!}
@@ -784,24 +784,24 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                           compact={true}
                         />
                       ) : (
-                        <div className="p-2.5 xs:p-3 sm:p-4 bg-slate-800/60 rounded-xl sm:rounded-2xl border border-slate-700/60 shadow-lg">
-                          <p className="text-xs sm:text-base text-slate-200 font-medium mb-1.5 sm:mb-2 text-center leading-snug">
+                        <div className="p-2 sm:p-2.5 bg-slate-800/60 rounded-xl sm:rounded-2xl border border-slate-700/60 shadow-lg text-center">
+                          <p className="text-xs sm:text-sm text-slate-200 font-medium mb-1.5 sm:mb-2 leading-snug">
                             {t("Place {{name}} on the timeline, or enter the year below.", { name: t(currentMonarch.name) })}
                           </p>
-                          <form onSubmit={handleTypedGuess} className="flex flex-col sm:flex-row items-center gap-2 w-full">
+                          <form onSubmit={handleTypedGuess} className="flex flex-row items-center gap-2 w-full">
                             <input
                               type="number"
                               value={typedYear}
                               onChange={(e) => setTypedYear(e.target.value)}
                               disabled={gameState !== 'playing'}
                               placeholder={t("e.g., 1603")}
-                              className="bg-slate-700/60 border border-slate-600 rounded-lg px-2.5 py-1.5 text-white text-xs sm:text-base w-full sm:flex-grow text-center focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                              className="bg-slate-700/60 border border-slate-600 rounded-lg px-2.5 py-1.5 text-white text-xs sm:text-sm flex-grow text-center focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                               aria-label="Enter reign start year"
                             />
                             <button
                               type="submit"
                               disabled={gameState !== 'playing' || !typedYear.trim()}
-                              className="w-full sm:w-auto px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs sm:text-base shadow-md transition-all disabled:opacity-50"
+                              className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-xs sm:text-sm shadow-md transition-all disabled:opacity-50 flex-shrink-0"
                             >
                               {t("Submit")}
                             </button>
@@ -811,8 +811,8 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                     </div>
                   </div>
                 ) : gameMode === 'monarch' ? (
-                  <div className="w-full flex flex-row items-center justify-center gap-2 xs:gap-3 sm:gap-6 max-w-3xl mx-auto">
-                    <div className="w-[120px] xs:w-[135px] sm:w-[160px] md:w-auto flex-shrink-0">
+                  <div className="w-full flex flex-col items-center justify-center max-w-md mx-auto">
+                    <div className="flex-shrink-0 mb-1.5 sm:mb-2.5">
                       <MonarchCard
                         monarch={currentMonarch}
                         showReign={gameState === 'feedback' || isAdmin}
@@ -824,7 +824,7 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                         stagedCoatOfArmsUrl={stagedCoatOfArmsChanges[currentMonarch?.id]}
                       />
                     </div>
-                    <div className="flex-1 min-w-0 max-w-md">
+                    <div className="w-full">
                       {gameState === 'feedback' ? (
                         <Feedback
                           lastGuess={lastGuess!}
@@ -836,8 +836,8 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                           compact={true}
                         />
                       ) : (
-                        <div className="p-2.5 xs:p-3 sm:p-5 bg-slate-800/60 rounded-xl sm:rounded-2xl border border-slate-700/60 shadow-lg">
-                          <p className="text-xs sm:text-lg text-slate-200 font-medium mb-2 sm:mb-4 text-center leading-snug">
+                        <div className="p-2 sm:p-2.5 bg-slate-800/60 rounded-xl sm:rounded-2xl border border-slate-700/60 shadow-lg text-center">
+                          <p className="text-xs sm:text-sm text-slate-200 font-medium mb-1.5 sm:mb-2 leading-snug">
                             {t("Who was the successor to {{name}}?", { name: t(currentMonarch.name) })}
                           </p>
                           <NextMonarchGuesser monarchs={allMonarchsData} onSubmit={handleMonarchGuess} disabled={gameState !== 'playing'} lastGuess={lastGuess} />
@@ -847,21 +847,22 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                   </div>
                 ) : (
                   // Fact mode
-                  gameState === 'feedback' ? (
-                    <div className="w-full flex flex-row items-center justify-center gap-2 xs:gap-3 sm:gap-6 max-w-3xl mx-auto">
-                      <div className="w-[120px] xs:w-[135px] sm:w-[160px] flex-shrink-0">
-                        <MonarchCard
-                          monarch={currentMonarch}
-                          showReign={true}
-                          isAdmin={isAdmin}
-                          compact={true}
-                          onPortraitUpload={handlePortraitUpload}
-                          stagedPortraitUrl={stagedPortraitChanges[currentMonarch?.id]}
-                          onCoatOfArmsUpload={handleCoatOfArmsUpload}
-                          stagedCoatOfArmsUrl={stagedCoatOfArmsChanges[currentMonarch?.id]}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 max-w-md">
+                  <div className="w-full flex flex-col items-center justify-center max-w-md mx-auto">
+                    <div className="flex-shrink-0 mb-1.5 sm:mb-2">
+                      <MonarchCard
+                        monarch={currentMonarch}
+                        showReign={gameState === 'feedback' || isAdmin}
+                        maskedName={gameState === 'playing'}
+                        isAdmin={isAdmin}
+                        compact={true}
+                        onPortraitUpload={handlePortraitUpload}
+                        stagedPortraitUrl={stagedPortraitChanges[currentMonarch?.id]}
+                        onCoatOfArmsUpload={handleCoatOfArmsUpload}
+                        stagedCoatOfArmsUrl={stagedCoatOfArmsChanges[currentMonarch?.id]}
+                      />
+                    </div>
+                    <div className="w-full">
+                      {gameState === 'feedback' ? (
                         <Feedback
                           lastGuess={lastGuess!}
                           onNext={nextRound}
@@ -871,19 +872,19 @@ export const getGameMonarchs = (sourceMonarchs: Monarch[]): Monarch[] => {
                           onStop={handleStopGame}
                           compact={true}
                         />
-                      </div>
+                      ) : (
+                        <div className="flex flex-col gap-1.5 sm:gap-2.5 w-full">
+                          <div className="p-1.5 sm:p-2.5 bg-slate-800/70 rounded-xl border border-slate-700 text-center">
+                            <p className="text-[10px] sm:text-xs text-slate-400 font-medium mb-0.5">{t("Which monarch...")}</p>
+                            <blockquote className="text-xs sm:text-sm text-white font-serif italic leading-snug line-clamp-3">
+                              "{t(currentMonarch.context)}"
+                            </blockquote>
+                          </div>
+                          <MonarchGuesser options={factGuesserOptions} onSubmit={handleFactGuess} disabled={gameState !== 'playing'} lastGuess={lastGuess} />
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="w-full max-w-lg mx-auto flex flex-col gap-2 sm:gap-4 px-1 sm:px-2">
-                      <div className="p-3 sm:p-5 bg-slate-800/70 rounded-xl sm:rounded-2xl shadow-xl border border-slate-700 text-center">
-                        <p className="text-xs sm:text-base text-slate-400 font-medium mb-1 sm:mb-2">{t("Which monarch...")}</p>
-                        <blockquote className="text-xs xs:text-sm sm:text-xl text-white font-serif italic leading-snug line-clamp-4">
-                          "{t(currentMonarch.context)}"
-                        </blockquote>
-                      </div>
-                      <MonarchGuesser options={factGuesserOptions} onSubmit={handleFactGuess} disabled={gameState !== 'playing'} lastGuess={lastGuess} />
-                    </div>
-                  )
+                  </div>
                 )}
               </div>
               
