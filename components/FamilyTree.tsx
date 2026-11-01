@@ -4,6 +4,7 @@ import { Monarch } from "../types";
 import { useTranslation } from "react-i18next";
 import { MonarchFamilyTree } from "./MonarchFamilyTree";
 import { Crown, GitFork, ArrowLeft } from "lucide-react";
+import LanguageSelector from "./LanguageSelector";
 
 interface FamilyTreeProps {
   monarchs: Monarch[];
@@ -337,21 +338,27 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
   return (
     <div className="w-full min-h-screen flex flex-col bg-slate-900 text-white relative">
       {/* Top Header & Tab Controls */}
-      <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-md">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <button
-            onClick={onBack}
-            className="w-full sm:w-auto px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-medium transition-colors border border-slate-700 shadow flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{t("Back to Menu")}</span>
-          </button>
+      <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 sm:px-6 py-2.5 sm:py-3 shadow-md">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="flex items-center justify-between w-full md:w-auto gap-2">
+            <button
+              onClick={onBack}
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs sm:text-sm font-medium transition-colors border border-slate-700 shadow flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t("Back to Menu")}</span>
+            </button>
+
+            <div className="md:hidden">
+              <LanguageSelector />
+            </div>
+          </div>
 
           {/* View Mode Toggle Buttons */}
-          <div className="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 shadow-inner w-full sm:w-auto justify-center">
+          <div className="flex items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 shadow-inner w-full md:w-auto justify-center">
             <button
               onClick={() => setActiveTab("individual")}
-              className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === "individual"
                   ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md"
                   : "text-slate-300 hover:text-white"
@@ -363,7 +370,7 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
 
             <button
               onClick={() => setActiveTab("dynasty")}
-              className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
                 activeTab === "dynasty"
                   ? "bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md"
                   : "text-slate-300 hover:text-white"
@@ -374,10 +381,13 @@ const FamilyTree: React.FC<FamilyTreeProps> = ({
             </button>
           </div>
 
-          <div className="hidden lg:block text-xs text-slate-400 font-medium">
-            {activeTab === "individual"
-              ? t("Showing all spouses & known children")
-              : t("Click any monarch node to view family")}
+          <div className="hidden md:flex items-center gap-3">
+            <span className="text-xs text-slate-400 font-medium">
+              {activeTab === "individual"
+                ? t("Showing all spouses & known children")
+                : t("Click any monarch node to view family")}
+            </span>
+            <LanguageSelector />
           </div>
         </div>
       </header>
