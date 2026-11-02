@@ -5,6 +5,7 @@ import { getTenureHighlights } from '../data/tenureHighlights';
 import { TenureHighlightsSection } from './TenureHighlightsSection';
 import { useTranslation } from 'react-i18next';
 import { Crown, ChevronLeft, ChevronRight, Heart, Users, Sparkles, Info, ArrowDown, User } from 'lucide-react';
+import { useMonarchScreenAutoTranslate } from '../services/translationService';
 
 interface MonarchFamilyTreeProps {
   monarchs: Monarch[];
@@ -55,6 +56,8 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
   const tenureHighlights = useMemo(() => {
     return getTenureHighlights(currentMonarch.id);
   }, [currentMonarch]);
+
+  const { tr } = useMonarchScreenAutoTranslate(family, tenureHighlights);
 
   const currentIndex = useMemo(() => {
     return monarchs.findIndex((m) => m.id === currentMonarch.id);
@@ -111,7 +114,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
           {targetMonarchObj?.imageUrl ? (
             <img
               src={targetMonarchObj.imageUrl}
-              alt={person.name}
+              alt={t(person.name)}
               className="w-10 h-10 rounded-full object-cover border border-amber-400/50 flex-shrink-0"
               loading="lazy"
             />
@@ -142,7 +145,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
               </h4>
               {options.roleLabel && (
                 <span className="text-[10px] font-medium text-slate-400 bg-slate-700/60 px-1.5 py-0.5 rounded">
-                  {options.roleLabel}
+                  {t(options.roleLabel)}
                 </span>
               )}
             </div>
@@ -152,11 +155,15 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
             )}
 
             {options.marriageDate && (
-              <p className="text-xs text-pink-300/90 italic mt-0.5">{options.marriageDate}</p>
+              <p className="text-xs text-pink-300/90 italic mt-0.5">
+                {options.marriageDate.startsWith('m. ')
+                  ? `${t('m.')} ${options.marriageDate.replace('m. ', '')}`
+                  : t(options.marriageDate)}
+              </p>
             )}
 
             {person.notes && (
-              <p className="text-xs text-slate-300 mt-1 leading-snug">{t(person.notes)}</p>
+              <p className="text-xs text-slate-300 mt-1 leading-snug">{tr(person.notes)}</p>
             )}
 
             {isTargetMonarch && (
@@ -207,11 +214,11 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
               value={currentMonarch.id}
               onChange={(e) => onSelectMonarch(Number(e.target.value))}
               className="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium cursor-pointer"
-              aria-label="Select monarch to view family tree"
+              aria-label={t("Select monarch to view family tree")}
             >
               {monarchs.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.id}. {m.name} ({m.reignStart}–{m.reignEnd || t('Present')})
+                  {m.id}. {t(m.name)} ({m.reignStart}–{m.reignEnd || t('Present')})
                 </option>
               ))}
             </select>
@@ -240,7 +247,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
             {currentMonarch.imageUrl ? (
               <img
                 src={currentMonarch.imageUrl}
-                alt={currentMonarch.name}
+                alt={t(currentMonarch.name)}
                 className="w-32 h-40 sm:w-36 sm:h-44 object-cover rounded-xl bg-slate-900"
                 referrerPolicy="no-referrer"
               />
@@ -278,16 +285,16 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
             {t(currentMonarch.name)}
           </h2>
 
-          <p className="text-sm font-medium text-amber-200/80 italic">{currentMonarch.title}</p>
+          <p className="text-sm font-medium text-amber-200/80 italic">{t(currentMonarch.title)}</p>
 
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-            {t(currentMonarch.context)}
+            {tr(currentMonarch.context)}
           </p>
 
           {family?.notes && (
             <div className="mt-2 text-xs text-amber-200/90 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 flex items-start gap-2 text-left">
               <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-              <span>{t(family.notes)}</span>
+              <span>{tr(family.notes)}</span>
             </div>
           )}
         </div>
@@ -406,7 +413,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
                       <div className="flex items-center gap-2 pb-1 border-b border-slate-700/60">
                         <Heart className="w-3.5 h-3.5 text-pink-400" />
                         <h4 className="text-xs font-bold text-pink-300 uppercase tracking-wide">
-                          {t("Children with {{name}}", { name: group.spouse.name })}
+                          {t("Children with {{name}}", { name: t(group.spouse.name) })}
                         </h4>
                       </div>
                     )}
@@ -414,7 +421,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
                       {group.children.map((child) =>
                         renderPersonCard(child, {
                           isChild: true,
-                          roleLabel: child.relation || t("Child"),
+                          roleLabel: child.relation ? t(child.relation) : t("Child"),
                         })
                       )}
                     </div>
@@ -435,7 +442,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
                     {family.otherChildren.map((child) =>
                       renderPersonCard(child, {
                         isChild: true,
-                        roleLabel: child.relation || t("Child"),
+                        roleLabel: child.relation ? t(child.relation) : t("Child"),
                       })
                     )}
                   </div>
@@ -448,10 +455,11 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
                 {t("No known children")}
               </p>
               <p className="text-xs text-slate-400">
-                {family?.notes ||
-                  t(
-                    "This monarch had no known surviving legitimate children to inherit the crown."
-                  )}
+                {family?.notes
+                  ? tr(family.notes)
+                  : t(
+                      "This monarch had no known surviving legitimate children to inherit the crown."
+                    )}
               </p>
             </div>
           )}
@@ -459,7 +467,7 @@ export const MonarchFamilyTree: React.FC<MonarchFamilyTreeProps> = ({
 
         {/* Section: Tenure Highlights */}
         {tenureHighlights && (
-          <TenureHighlightsSection tenure={tenureHighlights} />
+          <TenureHighlightsSection tenure={tenureHighlights} tr={tr} />
         )}
       </div>
     </div>

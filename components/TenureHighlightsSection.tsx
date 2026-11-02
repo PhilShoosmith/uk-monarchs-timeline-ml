@@ -15,10 +15,12 @@ import {
 
 interface TenureHighlightsSectionProps {
   tenure: TenureHighlightsData;
+  tr?: (text: string | undefined) => string;
 }
 
-export const TenureHighlightsSection: React.FC<TenureHighlightsSectionProps> = ({ tenure }) => {
+export const TenureHighlightsSection: React.FC<TenureHighlightsSectionProps> = ({ tenure, tr: externalTr }) => {
   const { t } = useTranslation();
+  const tr = externalTr || ((text?: string) => (text ? t(text, text) : ''));
   const [activeLeaderTab, setActiveLeaderTab] = useState<'all' | 'pm' | 'us' | 'fr'>('all');
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
 
@@ -70,16 +72,16 @@ export const TenureHighlightsSection: React.FC<TenureHighlightsSectionProps> = (
 
           {(leader.title || leader.partyOrDynasty) && (
             <p className="text-xs text-amber-300/80 font-medium">
-              {leader.title ? t(leader.title, leader.title) : ''}
+              {leader.title ? tr(leader.title) : ''}
               {leader.title && leader.partyOrDynasty ? ' • ' : ''}
-              {leader.partyOrDynasty ? t(leader.partyOrDynasty, leader.partyOrDynasty) : ''}
+              {leader.partyOrDynasty ? tr(leader.partyOrDynasty) : ''}
             </p>
           )}
         </div>
 
         {leader.note && (
           <p className="text-xs text-slate-300/90 bg-slate-900/40 p-2 rounded-lg border border-slate-800/80 leading-relaxed">
-            {t(leader.note, leader.note)}
+            {tr(leader.note)}
           </p>
         )}
       </div>
@@ -143,7 +145,7 @@ export const TenureHighlightsSection: React.FC<TenureHighlightsSectionProps> = (
                       {idx + 1}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                      {t(highlight, highlight)}
+                      {tr(highlight)}
                     </p>
                   </div>
                 ))}
@@ -214,7 +216,7 @@ export const TenureHighlightsSection: React.FC<TenureHighlightsSectionProps> = (
               {tenure.contemporaryContext && (
                 <div className="mb-4 text-xs text-sky-200/90 bg-sky-950/40 border border-sky-800/50 rounded-xl p-3 flex items-start gap-2">
                   <Info className="w-4 h-4 text-sky-400 flex-shrink-0 mt-0.5" />
-                  <span>{t(tenure.contemporaryContext, tenure.contemporaryContext)}</span>
+                  <span>{tr(tenure.contemporaryContext)}</span>
                 </div>
               )}
 
@@ -309,16 +311,16 @@ export const TenureHighlightsSection: React.FC<TenureHighlightsSectionProps> = (
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-200 border border-indigo-500/40">
-                  UK Monarchs
+                  {t('UK Monarchs')}
                 </span>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-200 border border-blue-500/40">
-                  UK PMs
+                  {t('UK PMs')}
                 </span>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-200 border border-emerald-500/40">
-                  French Rulers
+                  {t('French Rulers')}
                 </span>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-200 border border-amber-500/40">
-                  US Presidents
+                  {t('US Presidents')}
                 </span>
               </div>
             </div>
